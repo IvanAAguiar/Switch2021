@@ -1,0 +1,39 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+hide circle
+skinparam classAttributeIconSize 0
+
+title US013 - As Administrator, I want to create user profiles
+
+class CreateUserProfileUI {
+
+}
+
+class CreateUserProfileController {
+    +createUserProfile(name): bool
+}
+
+class Company {
+    +getUserProfileStore()
+}
+
+class UserProfileStore {
+   +createUserProfile(name)
+   +validateUserProfile(up)
+   +saveUserProfile(up)
+}
+
+class UserProfile {
+    -name : String
+    +UserProfile(name)
+ }
+
+CreateUserProfileUI ..> CreateUserProfileController
+
+CreateUserProfileController ..> Company
+CreateUserProfileController ..> UserProfileStore
+Company "1" o-- "1" UserProfileStore: has
+UserProfileStore "1" *-- "*" UserProfile: Assigned
+
+@enduml

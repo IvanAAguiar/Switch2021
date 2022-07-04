@@ -1,0 +1,40 @@
+@startuml
+
+'hide circle
+skinparam classAttributeIconSize 0
+
+title US022 - As Project Manager, I want to create a sprint.
+
+class CreateSprintRoute {
+}
+
+class CreateSprintController {
++createSprint(sprintDTO)
+}
+
+class CreateSprintService {
++createAndSaveSprint(sprintDTO)
+}
+
+class SprintDTO {
++getSprintID
++getProjectID
++getName
+}
+
+class SprintFactory {
++createSprint(projectID, sprintID, name)
+}
+
+class SprintStore {
++saveSprint(sprint)
+}
+
+
+CreateSprintRoute ..> CreateSprintController
+CreateSprintController ..> CreateSprintService
+CreateSprintService ..> SprintFactory
+CreateSprintService ..> SprintStore
+CreateSprintService ..> SprintDTO
+
+@enduml

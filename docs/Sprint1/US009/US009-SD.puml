@@ -1,0 +1,51 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title US009 - As Product Owner, I want to create a user story and add it to the Product Backlog
+
+autoactivate on
+autonumber
+
+
+participant ": UserStoryRoute" as System
+participant ": UserStoryController" as Ctrl
+participant ": UserStoryService" as appService
+participant ": IUserStoryFactory" as factory
+participant ": IUserStoryRepo " as usStore
+participant ": UserStoryMapper" as usMapper
+participant "newUserStory : \n UserStory" as us
+participant "outputUsDto : \n OutputUserStoryDTO" as outDto
+participant "exception: \nException" as exc
+participant "response: \nResponseEntity" as json
+
+
+
+[o-> System: POST/userstories(json)
+System -> Ctrl: createUserStory(userStoryDTO)
+note right
+Change from json to dto hidden to simplify diagram
+end note
+Ctrl -> appService: createAndSaveUserStory(userStoryDTO)
+appService -> factory:  createUserStory(userStoryDTO)
+
+note over factory : All parameters (value objects) are instantiated in their own factories.
+
+factory -> us **: create(userStoryID, usPriority, \nusDescription, usTimeEstimate)
+return newUserStory
+
+appService-> usStore: save(newUserStory)
+ref over usStore: [[US009-SD-JPA.puml]]
+return usSaved
+opt if the new userstory already exist
+appService --> exc** : create(errorMessage)
+end
+appService-> usMapper : toDto(usSaved)
+usMapper-> outDto **:create()
+usMapper --> appService: outputUsDto
+appService --> Ctrl: outputUsDto
+Ctrl --> json**: create(outputUsDto)
+Ctrl --> System: response
+[<--System : Shows the user story created
+
+@enduml
+

@@ -1,0 +1,56 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+Title: Get all projects from our repository and all project from G5 repository
+
+autoactivate on
+autonumber
+
+participant ": ProjectController" as ctrl
+participant ": ProjectService" as service
+participant ": IProjectRepo" as repo
+participant ": ProjectJpaRepository" as iProjectJPA
+participant ": ProjectJpa" as jpa
+participant ": ProjectJpaMapper" as jpaMapper
+participant ": Project" as project
+participant ": ProjectMapper" as projectMapper
+participant ": OutputProjectDTO" as outDTO
+participant ": OutputProjectDTO" as outDTOx
+participant ": IProjecWebRepository" as repoWeb
+participant ": ProjectRestRepository" as restRepo
+participant ": ProjectRestDTO" as projRestDTO
+participant ": ProjectDomaninDataRestMapper" as projectRestMapper
+participant ": Project" as projectx
+
+[o-> ctrl: GET/projects(json)
+ctrl->service: getAllProjects()
+service->repo: findAll()
+repo->iProjectJPA: findAll()
+iProjectJPA->jpa** : create()
+iProjectJPA--> repo : projectJpaList
+repo->jpaMapper: toDomain (projectJpaList)
+jpaMapper->project** : create()
+jpaMapper-->repo: projectList
+repo-->service: projectList
+service->projectMapper:toCollectionDto(projectList)
+projectMapper-->outDTO**: create()
+projectMapper-->service : outputProjectDTOS2
+service->repoWeb: findAll()
+repoWeb->restRepo: findAll()
+restRepo->projRestDTO**: create()
+restRepo-->repoWeb : projectRestDTO
+repoWeb->projectRestMapper: toDomain (projectRestDTO)
+projectRestMapper->projectx**: create()
+projectRestMapper-->repoWeb: projectListWeb
+repoWeb-->service: projectListWeb
+service->projectMapper:toCollectionDto(projectListWeb)
+projectMapper-->outDTOx**: create()
+projectMapper-->service : outputProjectDTOS
+service->service: generateMap \n(outputProjectDTOS2, outputProjectDTOS)
+service-->ctrl:  CollectionModel<OutputProjectDTO>
+[<--ctrl : show both lists with project
+
+
+
+
+
+@enduml

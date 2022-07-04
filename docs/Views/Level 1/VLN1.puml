@@ -1,0 +1,13 @@
+@startuml
+
+title Logic View Level 1
+
+component System {
+port UI as 1
+port 2
+}
+
+1 -up- UI
+2 -right- WebServerG5
+
+@enduml

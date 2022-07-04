@@ -1,0 +1,37 @@
+@startuml
+
+title "US027 - As Director, I want to define the Product Owner of a project."
+
+autoactivate on
+autonumber
+
+actor "Director" as Director
+participant ": AssignProductOwnerUI" as UI
+participant ": AssignProductOwnerController" as Controller
+participant "proj:Project" as Project
+participant "projTeam:ProjectTeam" as ProjectTeam
+participant "Resource" as Resource
+participant "ProjectTeamMapper" as ProjectTeamMapper
+participant "resDTO:ResourceDTO" as ResourceDTO
+
+activate Director
+
+Director -> UI: Ask to access resource of a project
+UI -> Controller: getResource(name)
+Controller -> Project: getProjectTeam()
+return projTeam
+Controller -> ProjectTeam: getResourceByName(name)
+    loop hasEmail(email)
+        ProjectTeam -> Resource: isYourName(name)
+        return true
+        ProjectTeam -> Resource: isCurrent()
+        return true
+    end
+return resource
+Controller -> ProjectTeamMapper: toDto(resource)
+ProjectTeamMapper -> ResourceDTO**: ResourceDTO(name, role, startDate, endDate, costPerHour, percentageOfAllocation)
+return resDTO
+return resDTO
+return resDTO
+
+@enduml

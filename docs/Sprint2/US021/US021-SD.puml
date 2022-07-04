@@ -1,0 +1,53 @@
+@startuml
+title As Product Owner I want to change the Priority of a user story in the backlog
+
+autoactivate on
+autonumber
+
+participant ": UserStoryRoute" as Route
+participant ": UserStoryController" as Ctrl
+participant ": UserStoryService" as Service
+participant "iUsIdFactory : IUserStoryIDFactory" as IdFactory
+participant "userStoryID: UserStoryID" as ID
+participant ": IUserStoryRepo" as Repo
+participant "priorityFactory: IUsPriorityFactory" as PriorityFactory
+participant "priority: UsPriority" as Priority
+participant "userStory: UserStory" as US
+participant ": UserStoryJpaRepository" as Driver
+participant ": UserStoryMapper" as usMapper
+participant "exception: \nException" as exc
+participant "updateDto : \n OutputUserStoryDTO" as outDto
+participant "response: \nResponseEntity" as json
+
+[o-> Route: Asks for change the priority of a user story
+Route -> Ctrl: estimateEffort(updateDTO)
+Ctrl -> Service: timeEffortEstimation(id, updateDTO)
+Service -> Service: createUserStoryIdByStringInputFromController(id)
+Service -> IdFactory: create(pId, uTitle)
+IdFactory --> ID**: create()
+return userStoryID
+return userStoryID
+Service -> Repo: findByUserStoryId(userStoryID)
+return userStory
+opt if priority is different then 0
+    Service -> PriorityFactory: create(updateDTO.priority)
+    PriorityFactory -> Priority**: create()
+    return usPriority
+    Service -> US: updatePriority(usPriority)
+    deactivate US
+end
+Service -> Repo: update(userStory)
+ref over Repo: [[US021-SD-JPA.puml]]
+return updated
+opt if the new userstory already exist
+    Service --> exc** : create(errorMessage)
+end
+Service-> usMapper : toDto(updated)
+usMapper-> outDto **:create()
+usMapper --> Service: updatedDto
+Service --> Ctrl: updatedDto
+Ctrl --> json**: create(updatedDto)
+return response
+return response
+
+@enduml

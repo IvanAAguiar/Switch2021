@@ -1,0 +1,81 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+hide circle
+skinparam classAttributeIconSize 0
+
+title US030 - As a Team Member i want to view the Scrum Board of the current sprint
+
+class ScrumBoardUI
+
+class ScrumBoardController{
++getCurrentSprint()
++getSprintBacklog()
++getUserStoryList()
+}
+
+class Company{
++getProjectStore()
+}
+
+class ProjectStore{
++getProject()
+}
+
+class Project{
+-code
++getCode()
++getCurrentSprint()
+}
+
+class SprintList{}
+
+class Sprint{
+-sprintBacklog : SprintBacklog
++getSprintBacklog()
+}
+
+class SprintBacklog{
+-userStoryList : List<UserStory>
++getUserStoryList()
+}
+
+class Mapper{
+-userStoryStatusList : List<userStoryStatusDTO>
++createDTOList()
++toDTO()
+}
+
+class userStoryStatusDTO{
++userStoryStatusDTO()
+}
+
+class UserStory {
+-workDone : int
+-userStory : UserStory
+-status : UserStoryStatus
+-taskList : TaskList
++getExectution()
+}
+
+
+ScrumBoardUI ..> ScrumBoardController
+ScrumBoardUI ..> userStoryStatusDTO
+ScrumBoardController ..> userStoryStatusDTO
+ScrumBoardController ..> Company
+ScrumBoardController ..> Project
+ScrumBoardController ..> Mapper
+ScrumBoardController ..> UserStory
+Mapper ..> UserStory
+Mapper ..> userStoryStatusDTO
+Company "1" o-- "1" ProjectStore
+ProjectStore "1" *-- "*" Project
+Project "1" *-- "*" SprintList
+SprintList "1" *-- "*" Sprint
+Sprint "1" *-- "1" SprintBacklog
+SprintBacklog "1" o-- "*" UserStory
+
+ScrumBoardController ..> SprintBacklog
+ScrumBoardController ..> Sprint
+
+@enduml

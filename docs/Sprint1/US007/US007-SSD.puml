@@ -1,0 +1,17 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title US007 - As Director, I want to associate a human resource (user) to a project
+
+autoactivate on
+autonumber
+
+actor "Director" as user
+participant ":System" as System
+
+activate user
+
+user -> System: Asks to associate a human resource (user) to a project
+System --> user: Shows Information Success
+
+@enduml

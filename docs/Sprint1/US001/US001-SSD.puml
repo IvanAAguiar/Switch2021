@@ -1,0 +1,19 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title US001 - As Non-Registered User, I want to register as an application user
+
+autoactivate on
+autonumber
+
+actor "Non-Registered User" as User
+participant ":System" as System
+
+activate User
+
+User -> System:Starts the resgistration of new user
+'System --> User: request the required data: Name, E-mail, Function, Password, Password Confirmation and photo(optional)
+
+'User -> System: Types required data
+User <-- System: Informs operation success
+@enduml

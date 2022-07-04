@@ -1,0 +1,23 @@
+@startuml
+'https://plantuml.com/component-diagram
+
+title Logic View Level 2
+
+component {
+  port UI as 1
+  port API_G5 as 2
+  port WebServer_G5 as 3
+  [Frontend] -- API
+  API -- [Backend]
+  [Database] -up- API1
+  [Backend] -- API1
+}
+
+1 -- [Frontend]
+
+API -up- 2
+
+[Backend] -right- 3
+
+
+@enduml

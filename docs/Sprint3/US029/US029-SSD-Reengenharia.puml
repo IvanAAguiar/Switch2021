@@ -1,0 +1,19 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title US029 - As Project Manager, I want to start a sprint.
+
+autoactivate on
+autonumber
+
+actor "Project Manager" as ProjectManager
+participant ":System" as System
+
+activate ProjectManager
+
+ProjectManager -> System: Asks to Start a Sprint
+System -> System: startSprint
+deactivate
+System --> ProjectManager: Informs Operation Success
+
+@enduml

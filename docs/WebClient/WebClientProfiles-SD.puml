@@ -1,0 +1,64 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title Get All Profiles, from our Repository and G5 Repository
+
+autonumber
+autoactivate on
+
+participant ": ProfileController" as Ctrl
+participant ": ProfileService" as service
+participant ": IUserProfileRepo" as iUserProfileRepo
+participant ": UserProfileJpaRepository" as profileJPARepo
+participant ": UserProfileJPA" as jpa
+participant ": UserProfileJPAMapper" as mapper
+participant ": UserProfile" as userProfile
+participant ": UserProfileMapper" as userProfileMapper
+participant ": UserProfileDTO" as dto
+participant ": UserProfileDTO" as dtoX
+participant ": IUserProfileWebRepository" as iUserProfileWebRepository
+participant ": UserProfileRestRepository" as restRepo
+participant ": UserProfileRestDTO" as userProfileRestDTO
+participant ": UserProfileDomainDataRestMapper" as domainDataMapper
+participant ": UserProfile" as userProfileX
+
+[o-> Ctrl:  GET/profiles
+Ctrl -> service: getAllProfiles()
+service -> iUserProfileRepo: findAll()
+iUserProfileRepo -> profileJPARepo: findAll()
+profileJPARepo -> jpa**: create()
+profileJPARepo --> iUserProfileRepo: userProfileJpaList
+iUserProfileRepo -> mapper: toDomain(userProfileJpaList)
+mapper -> userProfile**: create()
+mapper --> iUserProfileRepo: userProfileList
+iUserProfileRepo --> service: userProfileList
+service -> userProfileMapper: toCollectionDTO(userProfileList)
+userProfileMapper -> dto**: create()
+userProfileMapper --> service: outputUserProfileDTO_List
+service -> iUserProfileWebRepository: findAll()
+iUserProfileWebRepository -> restRepo: findAll()
+restRepo -> userProfileRestDTO**: create()
+restRepo --> iUserProfileWebRepository: userProfileRestDTO
+iUserProfileWebRepository -> domainDataMapper: toDomain(userProfileRestDTO)
+domainDataMapper -> userProfileX**: create()
+domainDataMapper --> iUserProfileWebRepository: userProfilesListWeb
+iUserProfileWebRepository --> service: userProfilesListWeb
+service -> userProfileMapper: toCollectionDTO(userProfilesListWeb)
+userProfileMapper -> dtoX**: create()
+userProfileMapper --> service: outputUserProfileList_DTO
+service -> service: generateMap( outputUserProfileDTO_List, \noutputUserProfileList_DTO)
+
+service --> Ctrl: CollectionModel\n<UserProfileDTO>
+deactivate
+[<--Ctrl : Shows both \nUser's Profiles List
+
+
+
+
+
+
+
+
+
+
+@enduml

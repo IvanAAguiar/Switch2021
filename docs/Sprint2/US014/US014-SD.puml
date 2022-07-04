@@ -1,0 +1,68 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title US014 - As Director, I want to define SM of a project.
+
+autonumber
+
+participant ": AssignScrumMasterRouter" as Route
+participant ": ResourceController" as Ctrl
+participant ": ResourceService" as service
+participant ": IResourceRepo" as iResourceRepo
+participant ": ResourceJpaRepository" as resourceJPARepository
+participant ": ResourceJPA" as resourceJPA
+participant ": ResourceMapper" as mapper
+participant ": ResourceJPAAssembler" as assembler
+participant ": Resource" as resource
+participant "defineRoleOfResourceDTO : \n DefineRoleOfResourceDTO" as defineRoleOfResourceDTO
+participant "outPutResourceDTO : \n OutPutResourceDTO" as outPutResourceDTO
+participant "response: \n ResponseEntity" as json
+
+
+autoactivate on
+
+[o-> Route: PATCH/{id} (json)
+note right
+Change from json to dto hidden to simplify diagram
+end note
+Route -> Ctrl: defineProjectRoleOfProject \n (defineRoleOfResourceDTO)
+Ctrl -> service: defineRole(defineRoleOfResourceDTO)
+service -> service: createResourceIdByStringInputFromController(id)
+deactivate
+note over service : All parameters (value objects) are instantiated in their own factories.
+service -> iResourceRepo: findAllByProject(resourceID.getProject)
+iResourceRepo -> resourceJPARepository: findAll()
+loop ResourceJPA
+resourceJPARepository -> resourceJPA: resourceJPA.getProjectID
+return resourceJPA list
+end
+resourceJPARepository --> mapper: toDomain (resourceJPA list)
+loop ResourceJPA
+mapper -> resource: resourceJPA.getProjectID
+return resource list
+end
+mapper --> resourceJPARepository: resource list
+resourceJPARepository --> iResourceRepo: resource list
+iResourceRepo --> service: resource list
+service -> iResourceRepo: findById(resourceID)
+iResourceRepo -> resourceJPARepository: finByID(resourceIDJPA)
+note right
+Change from resourceID to resourceIDJPA hidden to simplify diagram
+end note
+resourceJPARepository --> iResourceRepo: resourceJPA
+iResourceRepo -> assembler: toDomain(resourceJPA)
+assembler --> iResourceRepo: resource
+iResourceRepo --> service: resource
+service -> service: resource = showCurrentResourceByProjectRole \n (resourceList, defineRoleOfResourceDTO.getRole() \n,defineRoleOfREsourceDTO.getStartDate())
+deactivate
+service -> defineRoleOfResourceDTO ** : create()
+service -> service: resource = updateProjectRoleOfAResource (resource, defineRoleOfResourceDTO)
+deactivate
+service -> mapper: toDTO(resource)
+mapper -> outPutResourceDTO **: create()
+mapper --> service: outPutResourceDTO
+service --> Ctrl: outPutResourceDTO
+Ctrl -> json **: create(outPutResourceDTO)
+Ctrl --> Route: response
+[<--Route : Shows the resource created
+@enduml

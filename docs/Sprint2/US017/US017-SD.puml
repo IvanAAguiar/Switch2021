@@ -1,0 +1,89 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title US017 - As Authenticated User, I want to get a list of all projects I'm currently allocated to
+
+autonumber
+
+actor "Authenticated User" as actor
+participant ": ShowAllCurrentProjectsByUserRoute" as route
+participant ": ShowAllCurrentProjectsByUserController" as ctrl
+participant "dateDto : DateDto" as dataDto
+participant "idDto : IdDto" as idDto
+participant ": ShowAllCurrentProjectsByUserService" as srv
+participant ": IRepositorySystemUser" as userStore
+participant ": IRepositoryResource" as resStore
+participant "userResources : List<Resource>" as resList
+participant ": ManageResourcesService" as dsrv
+participant "currentUserResources : List<Resource>" as resList2
+participant "resourceProjects : List<ProjectId>" as resList4
+participant "res : Resource" as res
+participant "projId : ProjectId" as pId
+participant "projects : List<Project>" as projList
+participant ": IRepositoryProject" as projStore
+participant "proj : Project" as proj
+participant ": ProjectMapper" as map
+participant "projectsDto : List<ProjectDto>" as listDto
+participant "projDto : ProjectDto" as dto
+participant "ProjectsResponse : ResponseEntity" as json
+
+activate actor
+autoactivate on
+
+actor -> route : GET /users/{userId}/resources?date={date}
+route -> ctrl : showCurrentProjectsByUser()
+ctrl -> srv : showCurrentProjectsByUser(dataDto, idDto)
+note over ctrl, srv : The object dataDto is created with variables userId and date in the path.
+srv -> userStore : existById(idDto.id) : true
+deactivate
+srv -> resStore : findAllByUser(idDto.id)
+resStore --> resList** : create()
+resStore --> srv : userResources
+srv -> dsrv : currentResourcesByDate(userResources, dateDto.date)
+dsrv --> resList2**: create()
+loop for all known resource in the list
+dsrv -> resList : get(i) : res
+deactivate
+dsrv -> res : isValidToThisDate(dateDto.date)
+res --> dsrv : result
+opt if result is true
+dsrv -> resList2 : add(res) : true
+deactivate
+end
+end
+dsrv --> srv : currentUserResources
+srv -> dsrv : listProjectsOfResources(currentUserResources)
+dsrv --> resList4**: create()
+loop for all known resource in the list
+dsrv -> resList2 : get(i) : res
+deactivate
+dsrv -> res : getProjectId() : projId
+deactivate
+dsrv -> resList4 : add(projId) : true
+deactivate
+end
+dsrv --> srv : resourceProjects
+srv --> projList**: create()
+loop for all known projectId in the list
+srv -> projStore : findById(projId)
+projStore --> srv : proj
+srv -> projList : add(proj) : true
+deactivate
+end
+srv --> listDto**: create()
+loop for all projects (proj) in the projects list
+srv -> map : model2Dto(proj)
+map --> dto** : create()
+note over map : The sequence of this method are hidden to simplify the diagram.
+map --> srv : projDto
+srv -> listDto : add(projDto)
+deactivate
+end
+srv --> ctrl : projectsDto
+ctrl --> json**: create()
+note over ctrl, json : The Controller uses the Response Entity class to create a response in JSON format using the dto received from Service layer and defining the HTTP status.
+ctrl --> route : projectsResponse
+route --> actor : Show all projects that the user are currently allocated to
+
+
+@enduml

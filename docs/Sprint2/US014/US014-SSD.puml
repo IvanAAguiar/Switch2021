@@ -1,0 +1,15 @@
+@startuml
+
+title "US014 - As Director, I want to define the SM of a project."
+autoactivate on
+'autonumber
+
+actor "Director" as Director
+participant ":System" as System
+
+activate Director
+
+Director -> System: Wants to define the SM of a project
+System --> Director: Informs operation success
+
+@enduml

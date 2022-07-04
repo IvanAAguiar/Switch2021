@@ -1,0 +1,30 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+title US004 - As Administrator, I want to search for users
+
+class SystemUserId <<(V,orange)>> #lightblue {
+    systemUserId : Email
+}
+
+class UserProfileId <<(V,orange)>> #lightsalmon {
+    userProfileId : Description
+}
+
+package SystemUser <<Rectangle>> {
+    entity SystemUser <<root>> #lightblue{
+        userName : Name
+        userFunction : Function
+    }
+}
+
+package UserProfile <<Rectangle>> {
+    entity UserProfile <<root>> #lightsalmon
+}
+
+SystemUser "1"-->"1" SystemUserId
+UserProfile "1"-->"1" UserProfileId
+
+SystemUser "*"-->"*" UserProfileId
+
+@enduml

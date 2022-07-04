@@ -1,0 +1,50 @@
+@startuml
+title Sequence Diagram US026 "As Administrator, I want to activate a user account"
+
+autoactivate on
+autonumber
+
+participant ": UserRoute" as UI
+participant ": UserController" as Ctrl
+participant ": UserService" as Serv
+participant ": IUserRepo" as Repo
+participant ": UserJpaAssembler" as Assembler
+participant "opUser: User" as Optional
+participant "foundUserJpa: UserJpa" as FoundUser
+participant "userJpa: UserJpa" as UserJPA
+participant ":UserJpaRepository" as Driver
+participant "savedUserJpa: UserJpa" as SavedJpa
+participant "savedUser: User" as SavedUser
+participant ": UserMapper" as mapper
+participant "outputDTO: OutputUserDTO" as OutDTO
+participant "response: ResponseEntity" as json
+
+[o-> UI:  PUT /users/{ID}/activate
+UI -> Ctrl: activateUser(idDTO)
+Ctrl -> Serv: activateUser(user)
+Serv -> Repo: findByUserId(userID)
+Repo --> FoundUser**: create()
+Repo -> Assembler: toDomain(foundUserJpa.get())
+Assembler --> Optional**: create()
+return opUser
+return opUser
+Serv -> Optional: activateStatus()
+return true
+Serv -> Repo: update(opUser)
+Repo --> UserJPA**: create()
+Repo -> Driver: save(userJpa)
+Driver --> SavedJpa**: create()
+return savedJpaUser
+Repo -> Assembler: toDomain(savedUserJpa)
+Assembler --> SavedUser**: create()
+return savedUser
+return savedUser
+Serv -> mapper: toDto(savedUser.get())
+mapper --> OutDTO**: create()
+return OutDTO
+return OutDTO
+Ctrl --> json**: create()
+return response
+return Shows User activated
+
+@enduml

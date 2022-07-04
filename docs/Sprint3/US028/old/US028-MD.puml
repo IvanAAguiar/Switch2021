@@ -1,0 +1,41 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+skinparam classAttributeIconSize 0
+hide circle
+
+title Domain Model excerpt - US028 - As Director, I want to get a list of all human resources in a project
+
+together {
+class Company{
+}
+class Project{
+}
+}
+together {
+class ProjectTeam{
+}
+together {
+class Resource{
+-startDate
+-endDate
+-role
+-percentageOfAllocation
+-costPerHour
+}
+class SystemUser{
+-name
+}
+class ProjectRole{
+-id
+-name
+}
+
+
+Company "1" -left-> "*" Project: contains
+Project "1" <-right- "1" ProjectTeam: belongs to
+
+ProjectTeam "1" <-- "*" Resource: belongs to
+Resource "*" <-right- "1" SystemUser: is assigned
+ProjectRole "0..1" -left-> "*" Resource: has
+@enduml

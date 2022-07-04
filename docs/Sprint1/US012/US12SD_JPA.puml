@@ -1,0 +1,31 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autoactivate on
+autonumber
+
+title US012 - "As Director, I want to create a new project typology."
+
+
+participant ": ITypologyRepository" as Repository
+participant ":TypologyJpaAssembler" as Assembler
+participant "typologyJpa:TypologyJpa" as USJPA
+participant ":ITypologyRepositoryJpa" as Driver
+participant "savedData:Data" as Data
+participant "typology:Typology" as US
+
+[o->Repository: save(typology)
+
+Repository -> Assembler : toData(typology)
+Assembler --> USJPA **: create ()
+Assembler --> Repository : typologyJPA
+Repository -> Driver: save(typologyJpa)
+Driver --> Data**: create(savedTypologyJpa)
+Driver --> Repository : savedData
+Repository -> Assembler: toDomain (savedData)
+Assembler -> US **: create()
+Assembler --> Repository: typology
+
+[<--Repository: typology
+
+@enduml

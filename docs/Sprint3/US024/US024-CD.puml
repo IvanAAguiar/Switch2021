@@ -1,0 +1,109 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+skinparam classAttributeIconSize 0
+
+title US024 - As Administrator, I want to get a list all user accounts and their status
+
+package "System" <<Rectangle>> {
+
+package "Infrastructure" <<Rectangle>> #lightblue  {
+class "GetAllUsersAndTheirStatusRoute" as route << Component >>
+}
+
+package "Interface Adapters" <<Rectangle>> #lightgreen {
+package "Controllers" <<rectangle>>{
+class "GetAllUsersAndTheirStatusController" as ctrl << Component >> {
++getAllUsersWithStatus()
+}
+}
+package "Repositories" <<rectangle>>{
+class "SystemUserStore" as store <<Repository>> {
+-users : List<SystemUser>
++findAll()
+}
+}
+}
+
+package "Application Service" <<Rectangle>> #lightpink{
+
+package "App Services" <<rectangle>>{
+class "GetAllUsersAndTheirStatusService" as srv <<Service>> {
++getAllUsersWithStatus()
+}
+}
+
+package "IRepositories" <<rectangle>>{
+interface "ISystemUserRepository" as repo{
+findAll()
+}
+}
+
+}
+
+package "Domain" <<Rectangle>> #burlywood{
+
+package "Aggregates" <<Rectangle>>{
+
+package "SystemUser" <<Rectangle>>{
+entity "SystemUser" as user << Root >>{
+-userName : Name
+-userStatus : Boolean
++getName()
++getEmail()
++getStatus()
+}
+}
+
+}
+
+package "Value Objects" <<Rectangle>>{
+class "SystemUserId" as userId << Value Object >>{
+-systemUserId : Email
+}
+}
+
+}
+
+package "DTO" <<Rectangle>>{
+class "UsersWithStatusMapper" as map << Component >>{
++data2Dto()
++model2Dto()
++dto2Json()
+}
+class "DataDto" as dataDto << Component >>{
+data : String
+}
+class "UserWithStatusDto" as dto << Component >> {
+name : String
+email : String
+status : String
+}
+class "UserWithStatusJson" as json << Component >>{
+name : String
+email : String
+status : String
+}
+}
+}
+
+user "1"*-d-"1" userId
+
+repo <|.u. store
+
+store "1"*----"*" user
+
+srv .u.> repo
+srv .u.> map
+
+map ..> dataDto
+map ..> user
+map .r.> dto
+map .l.> json
+
+ctrl .d.> srv
+ctrl .d.> map
+
+route .d.> ctrl
+
+@enduml

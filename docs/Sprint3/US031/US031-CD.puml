@@ -1,0 +1,119 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+skinparam classAttributeIconSize 0
+'hide circle
+
+title US031 - As Team Member, I want to create a task in a user story
+
+'-------------------INFRASTRUCTURE-----------------------'
+package Infrastructure <<Rectangle>> #lightblue {
+package "Route" {
+class "CreateUsTaskRoute" as route<<Component>>{
+}
+}
+package "Persistence" {
+interface "ITaskRepositoryJPA" as jpa <<Interface>>{
+}
+}
+}
+
+'-------------------INTERFACE ADAPTERS-------------------'
+package InterfaceAdapters <<Rectangle>> #lightgreen{
+package "Controllers" <<Rectangle>> {
+class "CreateUsTaskController" as ctrl <<Component>>{
++createUsTask(CreateTaskDTO dto)
+}
+}
+package Repositories <<Rectangle>> {
+class "TaskRepository" as projectRepo <<repository>> {
++save(newTask)
++existByTaskId(taskID)
+}
+}
+}
+
+'-------------------APPLICATION SERVICE------------------'
+package Application_Service <<Rectangle>> #lightpink{
+package IRepositories <<Rectangle>> {
+interface "ITaskRepo" as iRepo <<interface>>{
++save(newTask)
++existByTaskId(taskID)
+}
+}
+package "App Service" <<Rectangle>> {
+class "CreateUsTaskService" as service <<Service>>{
++createUsTask(taskDto)
+}
+}
+}
+
+'-------------------DOMAIN-------------------------------'
+package Domain <<Rectangle>> #burlywood{
+
+package Aggregates <<Rectangle>>{
+
+package Task <<Rectangle>>{
+
+entity "Task" as task <<root>>{
+-int idTask
+-Name name
+-Description description
+-TaskTypeEnum type
+-double effortEstimate
+-LocalDate startDate
+-LocalDate endDate
+-Resource responsible
+-List<Task> tasksPrecedence
+-List<Effort> taskEffortList
++Task(String name,String description,int effort,\nTaskType type,List<Task> precedence,Resource responsible)
+}
+
+}
+}
+package ValueObjects <<Rectangle>>{
+class taskId{
+}
+}
+}
+
+package DTO <<Rectangle>> #lightgray {
+
+class "TaskMapper" as mapper <<Component>>{
++toModel(CreateTaskDTO dto)
++toDTO(Task task)
+}
+
+class CreateTaskDTO <<Component>>{
+-String name
+-String description
+-int effortEstimate
+-String taskTypeName
+-String responsibleEmail
++CreateTaskDTO(Task task)
++getName()
++getDescription()
++getEffortEstimate()
++getTaskTypeName()
++getResponsible()
+}
+
+class DataDto <<Component>> {
++toModel(CreateTaskDTO dto)
++toDTO(Task task)
+}
+}
+
+
+route .d.> ctrl
+
+ctrl .d.> service
+ctrl .d.> mapper
+
+
+mapper ..> task
+
+
+
+
+@enduml

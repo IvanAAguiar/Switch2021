@@ -1,0 +1,39 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autoactivate on
+autonumber
+
+title US011 - "As Authenticated User, i want to change his/her password"
+
+
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autoactivate on
+autonumber
+
+title US011 - As Authenticated User, i want to change his/her password
+
+
+participant ": IUserRepo" as Repository
+participant ": UserJpaRepository" as jpaRepo
+participant "userJpa : UserJpa" as Data
+participant ": UserJpaAssembler" as assembler
+participant " user: User" as user
+
+
+[o->Repository: findByUserId(userID)
+
+Repository -> jpaRepo : findById(userID)
+jpaRepo ->Data : findById(userID)
+deactivate jpaRepo
+Data--> Repository: foundUserJpa
+Repository->assembler: toDomain(foundUserJpa)
+assembler -> user**: create
+assembler --> Repository : user
+[<--Repository: user
+
+@enduml
+
+@enduml

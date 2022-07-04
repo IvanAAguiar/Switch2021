@@ -1,0 +1,16 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+title US015 - As Director, I want to get a list of all projects
+
+class ProjectId <<(V,orange)>> {
+    projectId : ProjectCode
+}
+
+package Project <<Rectangle>> {
+    entity Project <<(R,tomato)>>
+}
+
+Project "1"-->"1" ProjectId
+
+@enduml

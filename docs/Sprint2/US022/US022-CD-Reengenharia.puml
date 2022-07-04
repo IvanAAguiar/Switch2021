@@ -1,0 +1,103 @@
+@startuml
+'https://plantuml.com/class-diagram'hide circle
+skinparam classAttributeIconSize 0
+
+title US022 - As Project Manager, I want to create a sprint.
+
+skinparam classAttributeIconSize 0
+
+package "Infrastructure" <<Folder>> #lightblue  {
+class "CreateSprintRoute" as route << Component >>
+}
+
+package "Interface Adapter" <<Folder>> #lightgreen {
+package "Controllers" <<Folder>>{
+class "CreateSprintController" as ctrl << Component >> {
++createSprint(json)
+}
+}
+package "Repositories" <<Folder>>{
+class "SprintStore" as store << Repository >> {
+-sprints : List<Sprint>
++ save(newSprint)
++ existsBySprintId(SprintID)
+}
+}
+}
+package "Application Service API/Use Case Service" <<Rectangle>> #lightpink{
+package "App Service" <<Folder>>{
+class "CreateSprintService" as service << Component >> {
++createAndSaveSprint(newSprintDTO)
+}
+}
+package "Repositories Interface" <<Folder>>{
+interface "SprintRepositoryInterface" as repo << Interface >>{
++ save(newSprint)
++ existsBySprintId(SprintID)
+}
+}
+package "Factory Interface" <<Folder>>{
+interface "ISprintFactory" as factoryInterface << Interface >>{
++createSprint(newSprintDTO)
+}
+}
+}
+package "DTO" <<Folder>> {
+package "NewSprintDTO" <<Folder>>{
+class "NewSprintDTO" as dto << Component >> {
+- projectID : ProjectID
+- name : Description
+}
+class "OutPutSprintDTO" as outdto << Component >> {
+- sprintID : SprintID
+- projectID : ProjectID
+- name : Description
+}
+}
+package "DTO" <<Folder>> {
+package "SprintMapper" <<Folder>>{
+class "SprintMapper" as mapper << Component >> {
++ toDto(newSprint)
+}
+}
+}
+
+package "Entity/Core/Domain" <<Folder>> #burlywood{
+package "Aggregate" <<Folder>>{
+class "Sprint" as sprint << Root >> {
+- sprintID : SprintID
+- projectID : ProjectID
+- name : Description
++ Sprint(sprintID)
+}
+}
+package "Factory" <<Folder>>{
+class "SprintFactory" as sprintF << Factory >> {
++createSprint(newSprintDTO)
+}
+}
+package "Value Object" <<Folder>>{
+class "SprintID" as sprintID << Value Object >> {
+-projectID : ProjectID
+-sprintName : Description
++sprintID(projectID, sprintName)
+}
+}
+
+
+route ..> ctrl
+ctrl..> service
+store..|> repo
+service..> mapper
+sprintF..> dto
+service..> factoryInterface
+service..left> repo
+sprintF"1"*-d-"1" sprintID
+sprintF..right>sprint
+sprintF..up|>factoryInterface
+mapper ..> dto
+mapper ..> outdto
+
+
+
+@enduml

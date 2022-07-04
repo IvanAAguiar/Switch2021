@@ -1,0 +1,82 @@
+ q@startuml
+'https://plantuml.com/class-diagram
+
+hide circle
+skinparam classAttributeIconSize 0
+
+title As Project Member, I want to update the status (i.e.: the Scrum Board category) of a user story in the scope of the current sprint backlog.
+
+class UpdateStatusUSSprintUI {
+}
+
+class UpdateStatusUSSprintController {
+    +getUsStatusList()
+    +changeStatusOfUs(code, usId, userStoryStatus)
+}
+
+class UserStoryStatusStore{
+    +getUsAvailableStatusListD()
+}
+
+class Company {
+    +getProjectStore()
+    +getUserStoryStatusStore()
+}
+
+class ProjectStore {
+    +getProjectByCode(code)
+}
+
+class Project {
+    +getCurrentSprint()
+}
+
+class Sprint {
+    +getSprintBacklog()
+}
+
+class SprintBacklog {
+    +getUserStory(usId)
+}
+
+class Userstory {
+    +setStatus(userStoryStatus)
+}
+
+
+
+UpdateStatusUSSprintUI ..> UpdateStatusUSSprintController
+
+UpdateStatusUSSprintController ..> UserStoryStatusStore
+
+UpdateStatusUSSprintController ..> Company
+
+UpdateStatusUSSprintController ..> ProjectStore
+
+UpdateStatusUSSprintController ..> Project
+
+UpdateStatusUSSprintController ..> Sprint
+
+UpdateStatusUSSprintController ..> SprintBacklog
+
+UpdateStatusUSSprintController ..> Userstory
+
+
+
+Company "1" o-- "1" ProjectStore: has
+
+Company "1" o-- "1" UserStoryStatusStore: has
+
+ProjectStore "1" *-- "0..*" Project: contains
+
+Project "1" *-- "1" Sprint: involves
+
+Sprint "1" *-- "1" SprintBacklog: has
+
+SprintBacklog "1" *-- "0..*" Userstory: incorporates
+
+
+
+
+
+@enduml

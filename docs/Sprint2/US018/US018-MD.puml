@@ -1,0 +1,38 @@
+@startuml
+'https://plantuml.com/class-diagram
+hide circle
+skinparam classAttributeIconSize 0
+hide methods
+
+title US018 - As PO/SM/TeamMember, I want to consult the Product Backlog, i. e. to get the list of user stories sorted by priority
+
+class Company{
+}
+
+class Project{
+- code
+- projectName
+- description
+- startDate
+- endDate
+- numberOfSprints
+- sprintDuration
+}
+
+class ProductBacklog{
+}
+
+class UserStory{
+- name
+- priority
+- description
+- parentUserStory
+- timeEstimate
+- workDone
+}
+
+Project "*" -> "1" Company: belongs to
+ProductBacklog "1" -> "1" Project: contains
+ProductBacklog "1" -> "*" UserStory: includes
+
+@enduml

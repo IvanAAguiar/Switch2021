@@ -1,0 +1,73 @@
+@startuml
+title "US020 - As Product Owner, I want to refine a broad user story of the Product Backlog into more focused user stories."
+
+autoactivate on
+autonumber
+
+participant ": UserStoryRoute" as Route
+participant ": UserStoryController" as Ctrl
+participant ": UserStoryService" as Service
+participant "iUsIdFactory : IUserStoryIDFactory" as IdFactory
+participant "userStoryID: UserStoryID" as ID
+participant ": IUserStoryRepo" as Repo
+participant "usFactory: IUserStoryFactory" as Factory
+participant "refinedUs: UserStory" as Refined
+participant "us: UserStory" as US
+participant "userStories: List" as UserStories
+participant ": UserStoryMapper" as usMapper
+participant "exception: \nException" as exc
+participant "savedDto : \n CollectionModel \n <OutputUserStoryDTO>" as outDto
+participant "response: \nResponseEntity" as json
+
+[o-> Route: Asks for refine a user story into more focused user stories
+Route -> Ctrl: refineUserStory(id, inDto)
+Ctrl -> Service: refineUserStory(id, inDto)
+Service -> Service: createUserStoryIdByStringInputFromController(id)
+Service -> IdFactory: create(pId, uTitle)
+IdFactory --> ID**: create()
+return userStoryID
+return userStoryID
+Service -> Repo: findByUserStoryId(userStoryID)
+ref over Repo: [[US020-SD-FindJPA.puml]]
+Repo --> US**: create()
+return opUs
+Service --> UserStories**: create()
+
+alt if opUs is found
+    Service -> Factory: createUserStory(inDto)
+    Factory -> Refined**: create()
+    return refinedUs
+    Service -> Refined: assignParentUserStory(usIDTitle)
+    deactivate Refined
+    Service -> Repo: save(refineUs)
+    ref over Repo: [[US020-SD-SaveJPA.puml]]
+    return opSaved
+
+    alt if opSaved is found
+        Service -> UserStories: add(opSaved.get())
+        deactivate UserStories
+        Service -> US: refinedUs()
+        deactivate US
+        Service -> Repo: update(us)
+        ref over Repo: [[US020-SD-UpdateJPA.puml]]
+        return updated
+
+        alt if updated is found
+            Service -> UserStories: add(updated.get())
+            deactivate UserStories
+        end
+    else if the new userstory already exist
+        Service --> exc** : create(errorMessage)
+    end
+else if the new userstory already exist
+    Service --> exc** : create(errorMessage)
+end
+Service-> usMapper : toDto(userStories)
+usMapper-> outDto **:create()
+usMapper --> Service: savedDto
+Service --> Ctrl: savedDto
+Ctrl --> json**: create(savedDto)
+return response
+return response
+
+@enduml

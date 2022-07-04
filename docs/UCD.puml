@@ -1,0 +1,94 @@
+@startuml
+'https://plantuml.com/use-case-diagram
+
+title Use Case Diagram
+
+left to right direction
+actor "Non-Registered User" as nUser
+actor "Authenticated User" as aUser
+actor "Visitor" as visitor
+actor "Administrator" as admin
+actor "Director" as director
+actor "Project Manager" as pm
+actor "Product Owner" as po
+actor "Scrum Master" as sm
+actor "Team Member" as tm
+actor "Project Member" as pmb
+rectangle "Beaver Application" {
+  usecase "US01 - Register account" as UC1
+  usecase "US02 - Activate account" as UC2
+  usecase "US03 - Request a given profile" as UC3
+  usecase "US04 - Search users" as UC4
+  usecase "US05 - Create project" as UC5
+  usecase "US06 - Update user profiles" as UC6
+  usecase "US07 - Associate user to a project" as UC7
+  usecase "US08 - Edit project information" as UC8
+  usecase "US09 - Create User Story and add it to the Product Backlog" as UC9
+  usecase "US10 - Update data" as UC10
+  usecase "US11 - Change Password" as UC11
+  usecase "US12 - Create project tipology" as UC12
+  usecase "US13 - Create user profiles" as UC13
+  usecase "US14 - Define Scrum Master to a project" as UC14
+  usecase "US15 - List all projects" as UC15
+  usecase "US16 - View project activities status" as UC16
+  usecase "US17 - List projects i'm currently allocated to" as UC17
+  usecase "US18 - Consult the Product Backlog" as UC18
+  usecase "US19 - Estimate effort of a User Story" as UC19
+  usecase "US20 - Refine a broad user story into more focused user stories" as UC20
+  usecase "US21 - Change priority of a User Story in Product Backlog" as UC21
+  usecase "US22 - Create sprint" as UC22
+  usecase "US23 - Add User Story to Sprint Backlog" as UC23
+  usecase "US24 - List all user accounts and their status" as UC24
+  usecase "US25 - Inactivate account" as UC25
+  usecase "US26 - Activate account" as UC26
+  usecase "US27 - Define Product Owner of a project" as UC27
+  usecase "US28 - List all human resources in a project" as UC28
+  usecase "US29 - Start a sprint" as UC29
+  usecase "US30 - View current sprint Scrum Board" as UC30
+  usecase "US31 - Create task in a User Story" as UC31
+  usecase "US32 - Create task outside the scope of a User Story" as UC32
+  usecase "US33 - Register work done on a task" as UC33
+  usecase "US34 - Update User Story status of the current sprint backlog" as UC34
+}
+nUser --> UC1
+nUser --> UC2
+visitor --> UC3
+admin --> UC4
+director --> UC5
+admin --> UC6
+director --> UC7
+pm --> UC8
+po --> UC9
+aUser --> UC10
+aUser --> UC11
+director --> UC12
+admin --> UC13
+director --> UC14
+director --> UC15
+director --> UC16
+pm --> UC16
+po --> UC16
+sm --> UC16
+aUser --> UC17
+po --> UC18
+sm --> UC18
+tm --> UC18
+tm --> UC19
+po --> UC20
+po --> UC21
+pm --> UC22
+tm --> UC23
+admin --> UC24
+admin --> UC26
+admin --> UC25
+director --> UC27
+director --> UC28
+pm --> UC29
+tm --> UC30
+tm --> UC31
+tm --> UC32
+sm --> UC32
+tm --> UC33
+sm --> UC33
+pmb --> UC34
+@enduml

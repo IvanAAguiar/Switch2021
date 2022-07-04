@@ -1,0 +1,19 @@
+@startuml
+title "US020 - As Product Owner, I want to refine a broad user story of the Product Backlog into more focused user stories."
+
+autoactivate on
+autonumber
+
+participant ": IUserStoryRepo" as Repo
+participant "found: UserStoryJpa" as Found
+participant ": UserStoryJpaAssembler" as Assembler
+participant "opUser: User" as Optional
+
+[o-> Repo: findByUserId(userID)
+Repo --> Found**: create()
+Repo -> Assembler: toDomain(foundUserJpa.get())
+Assembler --> Optional**: create()
+return opUser
+return opUser
+
+@enduml

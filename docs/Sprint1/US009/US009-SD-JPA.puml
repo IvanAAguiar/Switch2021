@@ -1,0 +1,27 @@
+@startuml
+title US009 - "As Product Owner, I want to create a user story and add it to the Product Backlog"
+
+autoactivate on
+autonumber
+
+participant ": IUserStoryRepo" as Repository
+participant ": UserStoryJpaAssembler" as Assembler
+participant "userStoryJpa : UserStoryJpa" as USJPA
+participant ":IUserStoryRepositoryJpa" as Driver
+participant "savedDataJpa : DBData" as Data
+participant "usSaved : UserStory" as US
+
+[o->Repository: save(newUserStory)
+Repository -> Assembler : toData(newUserStory)
+Assembler -> USJPA **: create ()
+Assembler --> Repository : userStoryJpa
+Repository -> Driver: save(userStoryJpa)
+Driver -> Data**: create()
+Driver --> Repository : savedDataJpa
+Repository -> Assembler: toDomain (savedDataJpa)
+Assembler -> US **: create()
+Assembler --> Repository :usSaved
+
+[<--Repository: usSaved
+
+@enduml

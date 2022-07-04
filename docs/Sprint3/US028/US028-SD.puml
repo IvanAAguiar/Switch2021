@@ -1,0 +1,66 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title Sequence Diagram US 028 "As Director, I want to get a list of all human resources in a project"
+
+autoactivate on
+autonumber
+
+actor "Director" as actor
+participant ":ShowCurrentProjectTeamRoute" as route
+participant ":ResourcesController" as ctrl
+participant "dto :IdDto" as dataDto
+participant "dateDto :DateDto" as dateDto
+participant "srv :ShowCurrentProjectTeamService" as srv
+participant "projRepo :ProjectRepositoryInterface" as projrepo
+participant "resRepo :ResourceRepositoryInterface" as resrepo
+participant "resources :List<Resource>" as resList
+participant "dsrv :ManageResourcesService" as dsrv
+participant "currentResources :List<Resource>" as resList2
+participant "res :Resource" as res
+participant "map :ResourceMapper" as map
+participant "resourcesDto :List<OutputResourceDto>" as dtoList
+participant "resDto :OutputResourceDto" as dto
+participant "resourcesJson :ResponseEntity" as jsonList
+
+activate actor
+autoactivate on
+
+actor -> route : GET /resources
+route -> ctrl : showCurrentProjectTeam()
+ctrl -> srv : showCurrentProjectTeam(dto, dateDto)
+srv -> projrepo: existById(dto.id) : true
+deactivate
+srv -> resrepo : findByProject(dto.id)
+resrepo --> resList** : create()
+note over resrepo : The implementation of this method will be done in any class that implements this interface.
+resrepo --> srv : resources
+srv -> dsrv : currentResourcesByDate(resources, dateDto.date)
+dsrv --> resList2** : create()
+loop for all resources (res) in the resources list
+dsrv -> resList : get() : res
+deactivate
+dsrv -> res : isActiveToThisDate(dateDto.date)
+res --> dsrv : result
+opt if result is true
+dsrv -> resList2 : add(res)
+deactivate
+end
+end
+dsrv --> srv : currentResources
+srv --> dtoList** : create()
+loop for all resources (res) in the projectTeam list
+srv -> map : model2Dto(res)
+map --> dto** : create()
+note over map : The sequence of this method are hidden to simplify the diagram.
+map --> srv : resDto
+srv -> dtoList : add(resDto)
+deactivate
+end
+srv --> ctrl : resourcesDto
+ctrl --> jsonList** : create()
+ctrl --> route : resourcesJson
+route --> actor : Show all resources of the project
+
+
+@enduml

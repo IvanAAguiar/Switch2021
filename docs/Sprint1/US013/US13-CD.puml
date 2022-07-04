@@ -1,0 +1,143 @@
+@startuml
+
+skinparam classAttributeIconSize 0
+
+title US013 - "As Administrator, I want to create user profiles."
+
+package "Infrastructure" <<Rectangle>> #lightblue {
+package "Route"{
+    class "CreateUserProfiles" as route <<Component>>
+    }
+
+    package "Persistence" {
+    interface "IUserProfileRepositoryJpa" as jpa <<Interface>>
+    }
+}
+
+
+
+package "Interface Adapter" <<Rectangle>> #lightgreen{
+package "Controllers" <<Folder>>{
+
+    class "UserProfileController" as ctrl <<Component>>{
+     +createUserProfile(userProfileDTO)
+    }
+    }
+
+
+    package "Repositories" <<Folder>>{
+    class "UserProfileRepository" as uRepo <<Repository>>{
+    +save(profile)
+    +findByUserProfileID(userProfileID)
+
+    }
+}
+}
+
+package "DTO" <<Rectangle>>  {
+
+package "DTO " {
+    class "UserProfileDTO" as dto <<Component>> {
+    -userProfileName: String
+    }
+}
+
+
+package "Mapper"{
+    class "UserProfileMapper" as mapper <<Component>> {
+    +toDTO(newUserProfile)
+    }
+}
+
+}
+
+
+
+
+package "Application Service"<<Rectangle>> #implementation {
+    package "App Service" {
+        class "UserProfileService" as service <<Service>>{
+        +createAndSaveUserProfile(userProfileDTO)
+        }
+    }
+    package "Repositories Interface" {
+        class "IUserProfileRepo" as iUserProfileRepo <<(I, Violet) Interface>> {
+             +save(profile)
+             +findByUserProfileID(userProfileID)
+        }
+
+    }
+
+
+}
+
+package "Domain" <<Rectangle>>#burlywood  {
+    package "Factory" {
+        class "UserProfileFactory" as userProfileFactory <<Factory>> {
+        +createUserProfile(userProfileDTO)
+        }
+
+        class "UserProfileIDFactory" as userProfileIDFactory <<Factory>> {
+        +createUserProfileID(userProfileName)
+        }
+
+    }
+
+      package "Factory Interface" as factoryInterface <<Folder>>{
+
+          class "IUserProfileIDFactory" as iUserProfileIDFactory <<(I, Violet) Interface>> {
+                +createUserProfileID(userProfileName)
+                }
+
+          class "IUserProfileFactory" as iUserProfileFactory <<(I, Violet) Interface>> {
+                 +createUserProfile(userProfileDTO)
+                 }
+      }
+
+
+    package "Aggregate" {
+        class "UserProfile" as userProfile <<Root>>{
+         -userProfileId: UserProfileID
+         +UserProfile(userProfileId)
+        }
+    }
+    package "Value Object"  {
+        class "UserProfileID" as userProfileID <<Value Object>>{
+        +UserProfileID (userProfileName)
+        }
+    }
+}
+
+    package "Data Model" <<Rectangle>>{
+    package "Assembler" <<Folder>> {
+        class "UserProfileJpaAssembler" as assemblerjpa <<Component>> {
+        +toData (userProfile)
+        +toDomain(userProfileJPA)
+        }
+     }
+
+
+    package "JPA" <<Folder>> {
+        class "UserProfileJpa" as UPjpa <<Component>> {
+        -userProfileID: UserProfileID
+        }
+
+route ..up.> ctrl
+ctrl .d.> service
+uRepo ..d.|> iUserProfileRepo
+service .left.> iUserProfileRepo
+service ..> iUserProfileFactory
+service .d.> dto
+service .down.> mapper
+userProfileFactory ..down|> iUserProfileFactory
+userProfileIDFactory ..down|> iUserProfileIDFactory
+userProfileFactory ..down> iUserProfileIDFactory
+userProfileFactory ..up> userProfile
+userProfileIDFactory ..down> userProfileID
+uRepo ..l.> assemblerjpa
+uRepo ..l.> UPjpa
+mapper ..l.> dto
+uRepo ..up.>jpa
+
+
+@enduml

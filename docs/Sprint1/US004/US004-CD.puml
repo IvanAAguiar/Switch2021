@@ -1,0 +1,128 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+title US004 - As Administrator, I want to search for users
+
+skinparam classAttributeIconSize 0
+
+
+
+package "Infrastructure" <<Rectangle>> #lightblue  {
+class "SearchUsersByTypedParamsRoute" as route << Component >>
+}
+
+package "Interface Adapters" <<Rectangle>> #lightgreen {
+package "Controllers" <<rectangle>>{
+class "UserController" as ctrl << Component >> {
++searchUsersByTypedParams()
+}
+}
+
+package "Repositories" <<rectangle>>{
+class "SystemUserStore" as store << Repository >> {
++findAllByIdContains()
++findAllByNameContains()
++findAllByFunctionContains()
++findAllByProfileContains()
++findAllByStateContains()
++findAllByIdAndNameContains()
++findAllByNameAndFunctionContains()
++findAllByFunctionAndProfileContains()
++findAllByProfileAndStateContains()
++findAllByIdAndNameAndFunctionContains()
++findAllByNameAndFunctionAndProfileContains()
++findAllByFunctionAndProfileAndStateContains()
++findAllByIdAndNameAndFunctionAndProfileContains()
++findAllByNameAndFunctionAndProfileAndStateContains()
++findAllByIdAndNameAndFunctionAndProfileAndStateContains()
+}
+class "UserProfileStore" as uPStore << Repository >> {
++existById()
+}
+}
+}
+
+package "Application Service" <<Rectangle>> #lightpink{
+package "App Services" <<rectangle>>{
+class "SearchUsersByParamsService" as srv << Service >> {
+-id : SystemUserId
+-name : Name
+-function : Function
+-profile : ProfileId
+-state : String
+-checkWhichParamsHave()
++searchUsersByTypedParams()
+}
+}
+package "IRepositories" <<rectangle>>{
+interface "ISystemUserRepo" as repo{
+findAllByIdContains()
+findAllByNameContains()
+findAllByFunctionContains()
+findAllByProfileContains()
+findAllByStateContains()
+findAllByIdAndNameContains()
+findAllByNameAndFunctionContains()
+findAllByFunctionAndProfileContains()
+findAllByProfileAndStateContains()
+findAllByIdAndNameAndFunctionContains()
+findAllByNameAndFunctionAndProfileContains()
+findAllByFunctionAndProfileAndStateContains()
+findAllByIdAndNameAndFunctionAndProfileContains()
+findAllByNameAndFunctionAndProfileAndStateContains()
+findAllByIdAndNameAndFunctionAndProfileAndStateContains()
+}
+interface "IUserProfileRepo" as uPRepo{
+existById()
+}
+}
+}
+
+package "Domain" <<Rectangle>> #burlywood{
+package "Aggregates" <<rectangle>>{
+package "SystemUser" <<Rectangle>>{
+entity "SystemUser" as user << Root >> {
+-userName : Name
+-userFunction : Function
+}
+}
+package "UserProfile" <<Rectangle>>{
+entity "UserProfile" as profile << Root >>
+}
+}
+package "Value Object" <<rectangle>>{
+class "SystemUserId" as uId << Value Object >> {
+systemUserId : Email
+}
+class "UserProfileId" as uPId << Value Object >> {
+UserProfileId : Description
+}
+}
+}
+
+package "DTO" <<rectangle>>{
+class "SystemUserMapper" as map <<Component>> {
++ model2Dto()
+}
+class "SearchUserDto" as dataDto <<Component>>
+class "OutputUserDto" as dto <<Component>>
+}
+class "ResponseEntity" as json <<Component>>
+
+
+route .d.> ctrl
+ctrl .d..> srv
+srv .u.> repo
+srv .u.> uPRepo
+repo <|.u. store
+uPRepo <|.u. uPStore
+user "1"*-d-"1" uId
+user "*" o-d- "*" uPId
+profile "1"*-d-"1" uPId
+ctrl .r.> dataDto
+ctrl ..> json
+srv .u.> map
+map .r.> dto
+map ....> user
+
+@enduml

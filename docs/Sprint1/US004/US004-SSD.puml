@@ -1,0 +1,17 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title US004 - As Administrator, I want to search for users
+
+autoactivate on
+autonumber
+
+actor "Administrator" as User
+participant ":System" as System
+
+activate User
+
+User -> System: wants to search for users by name, email, profile or function
+System-->User: Show the list of user found by typed/chosen parameters
+
+@enduml

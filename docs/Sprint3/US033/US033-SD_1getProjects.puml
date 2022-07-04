@@ -1,0 +1,48 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title US033 - As SM/Team Member, I want to register work done on a Task (PARTIAL)
+
+autoactivate on
+autonumber
+
+participant ": RegisterWorkToTaskController" as Ctrl
+participant ": Company" as company
+participant "projStore : ProjectStore" as projStore
+participant "currentProjectList\n: List<Project>" as projectList
+participant "proj : Project" as project
+participant ": RegisterWorkToTaskMapper" as mapper
+participant "projectCodeNameDTOList\n: List<ProjectCodeNameDTO>" as projectListDTO
+participant "projCodeNameDTO\n: ProjectCodeNameDTO" as projectDTO
+
+[o->Ctrl: getCurrentProjectsByUserEmail(email)
+Ctrl->company: getProjectStore()
+company-->Ctrl: projStore
+Ctrl->projStore: getCurrentProjectsByUserEmail(email)
+projStore->projectList **: create()
+loop for each known project
+projStore->project: hasCurrentProjectTeamMember(email)
+project-->projStore: true
+projStore->projectList: add(proj)
+projectList-->projStore: true
+end
+projStore-->Ctrl: currentProjectList
+Ctrl->mapper: projectListToProjectDTOList(currentProjectList)
+mapper->projectListDTO **: create()
+loop for each project in currentProjectList
+mapper->projectList: get(i)
+projectList-->mapper: project
+mapper->mapper: projCodeNameDTO = \nprojectCodeNameToProjectCodeNameDTO(project)
+mapper->mapper:codeDTO = project.getCode()
+deactivate mapper
+mapper->mapper:nameDTO = project.getProjectName()
+deactivate mapper
+mapper->projectDTO**: create(codeDTO, nameDTO)
+deactivate mapper
+mapper->projectListDTO: add(projCodeNameDTO)
+projectListDTO-->mapper: true
+end
+mapper-->Ctrl: projectCodeNameDTOList
+[<--Ctrl: projectCodeNameDTOList
+
+@enduml

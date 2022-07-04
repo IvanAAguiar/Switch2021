@@ -1,0 +1,65 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title US015 - As Director, I want to get a list of all projects
+
+
+autonumber
+autoactivate on
+
+participant ": ShowAllProjectsRouter" as Route
+participant ": ProjectController" as Ctrl
+participant ": ProjectService" as service
+participant ": IProjectRepo" as iProjectRepo
+participant ": ProjectJpaRepository" as projectJPARepository
+participant ": ProjectJPA" as projectJPA
+participant ": List<ProjectsJPA>" as list
+participant ": ProjectJPAAssembler" as assembler
+participant ": Project" as project
+participant ": List<Project>" as projectList
+participant ": ProjectMapper" as mapper
+participant ": OutPutProjectDTO" as outputDTO
+
+
+
+[o-> Route: GET/projects (json)
+note right
+Change from json to dto hidden to simplify diagram
+end note
+Route -> Ctrl: getAllProjects()
+Ctrl -> service: getAllProjects()
+service -> iProjectRepo: findAll()
+iProjectRepo -> projectJPARepository: findAll()
+loop ProjectJPA
+projectJPARepository -> projectJPA: project = getProject
+end
+projectJPA -> list ** : create()
+deactivate
+projectJPARepository --> iProjectRepo: projectJPAList
+alt for each projectJPA in the list
+iProjectRepo -> assembler: toDomain(projectJPA)
+loop Project
+assembler -> project: project = getProject
+end
+assembler --> iProjectRepo: project
+end
+project -> projectList ** : create()
+deactivate
+project --> iProjectRepo: projectList
+iProjectRepo --> service: projectList
+service -> mapper: toCollectionsDTO(projectList)
+mapper -> outputDTO ** : create()
+mapper --> service: outPutProjectDTO
+service --> Ctrl: outPutProjectDTO
+
+
+
+
+
+
+
+
+
+Ctrl --> Route: response
+[<--Route : Shows the resource created
+@enduml

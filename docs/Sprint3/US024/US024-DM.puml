@@ -1,0 +1,16 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+title US024 - As Administrator, I want to get a list all user accounts and their status
+
+class SystemUserId <<(V,orange)>> #lightblue {
+    systemUserId : Email
+}
+
+package SystemUser <<Rectangle>> {
+    entity SystemUser <<root>> #lightblue
+}
+
+SystemUser "1"-->"1" SystemUserId
+
+@enduml

@@ -1,0 +1,82 @@
+@startuml
+
+title "US027 - As Director, I want to define the Product Owner of a project."
+
+autoactivate on
+autonumber
+
+actor "Director" as Director
+participant ": AssignProductOwnerUI" as UI
+participant ": AssignProductOwnerController" as Controller
+participant ": Company" as Company
+participant "project : Project" as Project
+participant "sprintList : SprintList" as SprintList
+participant "currentSprint : Sprint" as Sprint
+participant "projectRoleStore : ProjectRoleStore" as ProjectRoleStore
+participant "projectTeam : ProjectTeam" as ProjectTeam
+participant "resource : Resource" as OriginalResource
+participant "newResource : Resource" as newResource
+
+activate Director
+
+Director -> UI: Ask to access a project
+    ref over UI, Controller : US027-SD-getProject()
+UI --> Director: projDTO
+
+Director -> UI: Ask to access resource of a project
+    ref over UI, Controller : US027-SD-getResource()
+return resDTO
+
+Director -> UI: Define as Product Owner
+alt result = true "Assign Product Owner"
+    UI -> Controller: assignRole(resourceName, roleName)
+    Controller -> Project: getSprints()
+    return sprintStore
+    Controller -> SprintList: getCurrentSprint()
+        loop isCurrentSprint
+            SprintList -> Sprint: isCurrentSprint()
+            return true
+        end
+    return currentSprint
+    Controller -> Sprint: getEndDate()
+    return endDate
+    Controller -> Project: getSprintDuration()
+    return sprintDuration
+    Controller -> Company: getProjectRoleStore()
+    return projectRoleStore
+    Controller -> ProjectRoleStore: getProjectRole(roleName)
+    return role
+        alt result = true "resourceName == name && assignProjectRole"
+            Controller -> ProjectTeam: assignProjectRole(resource, startDateNextSprint, sprintDuration, role)
+            alt result = true "Check if resource can be assigned to role by date"
+            ProjectTeam -> OriginalResource: isAvailableToSprint(startDate, sprintDuration)
+                alt result = true "check startDate and endDate"
+                OriginalResource -> OriginalResource: isBefore(startDate)
+                return true
+                OriginalResource -> OriginalResource: isAfter(endDate)
+                return true
+                end
+            return true
+            end
+            ProjectTeam -> OriginalResource: copyUpdateProjectRoleOfAResource(originalResource, startDateNewRole, role)
+            OriginalResource -> newResource**: Resource(originalResource)
+                ProjectTeam -> newResource: setRole(role)
+                deactivate
+                ProjectTeam -> newResource: setStartDate(startDate)
+                deactivate
+                ProjectTeam -> OriginalResource: setEndDate(startDate)
+                deactivate
+            return newResource
+            alt result = false "check if the role exist and is current"
+                    ProjectTeam -> ProjectTeam: checkIfRoleCurrentExistInTheProjectTeam(role,startDate)
+                    deactivate
+            end
+                    ProjectTeam -> ProjectTeam: saveResource(newResource)
+                    return true
+        return true
+        end
+    return true
+end
+return Informs operation success
+
+@enduml

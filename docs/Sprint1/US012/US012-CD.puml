@@ -1,0 +1,136 @@
+@startuml
+
+skinparam classAttributeIconSize 0
+
+title US012 - "As Director, I want to create a new project typology."
+
+package "InfraEstructure" <<Rectangle>> #lightblue {
+
+    package "Route"{
+    class "CreateTypology" as route <<Component>>
+    }
+
+    package "Persistence" {
+    class CreateTypologyRoute <<Interface>>{
+    }
+}
+}
+
+package "Interface Adapter" <<Rectangle>> #lightgreen{
+package "Controllers" <<Component>>{
+    class TypologyController <<Component>>{
+    +createTypology(inputDto)
+    }
+    }
+
+    package "Repositories" <<Folder>>{
+    class TypologyRepository <<Repository>>{
+    +saveTypology(typology)
+    +existsByTypologyId(descriptionID)
+    }
+}
+}
+
+package "DTO" <<Rectangle>> {
+    class TypologyDTO <<Component>> {
+    -description : String
+    }
+
+    class TypologyMapper <<Component>> {
+    +modelToDto(typology)
+    }
+}
+
+package "Application Service" <<Rectangle>> #implementation {
+    package "App Service" {
+        class TypologyService <<Service>>{
+        +createAndSaveTypology(inputDto)
+        }
+    }
+    package "Repositories Interface" {
+        class "ITypologyRepo" as repo <<(I, Violet) Interface>> {
+            +saveTypology(typology)
+            +existsByTypologyId(description)
+        }
+    }
+
+}
+
+
+package "Domain" <<Rectangle>>#burlywood  {
+    package "Factory" {
+
+        class TypologyFactory <<Factory>> {
+        +createTypology(inputDto)
+        }
+
+        class TypologyIDFactory <<Factory>> {
+        +createId(inputDto)
+        }
+
+
+    }
+
+     package "Factory Interface" {
+
+      class ITypologyFactory <<(I, Violet) Interface>> {
+      +createTypology(inputDto)
+          }
+
+      class ITypologyIDFactory <<(I, Violet) Interface>> {
+      +createId(inputDto)
+           }
+
+     }
+
+    package "Aggregate" {
+        class Typology <<Root>>{
+            -descriptionID: TypologyID
+            +Typology (descriptionID)
+        }
+    }
+    package "Value Object"  {
+        class TypologyID <<Value Object>>{
+        +TypologyID (description)
+        }
+
+    }
+}
+
+    package "Data Model" <<Rectangle>>{
+    package "Assembler" <<Folder>> {
+        class "TypologyJpaAssembler" as assemblerjpa <<Component>> {
+        +toData (typology)
+        +toDomain(typologyJPA)
+        }
+     }
+
+
+    package "JPA" <<Folder>> {
+        class "TypologyJpa" as UPjpa <<Component>> {
+        -id: TypologyID
+        }
+
+
+CreateTypologyRoute -down..> TypologyController
+TypologyRepository -down..> route
+TypologyController -down..> TypologyService
+TypologyController -right..> TypologyMapper
+TypologyService -right..> TypologyMapper
+TypologyMapper -left..>TypologyDTO
+TypologyService -right..> repo
+TypologyService -down..> ITypologyFactory
+TypologyFactory -up[hidden]..> ITypologyFactory
+class TypologyFactory implements ITypologyFactory
+TypologyFactory -right..> Aggregate
+repo -up[hidden]..> TypologyRepository
+class TypologyRepository implements repo
+TypologyFactory -right..> ITypologyIDFactory
+TypologyIDFactory -up[hidden]..> ITypologyIDFactory
+class TypologyIDFactory implements ITypologyIDFactory
+TypologyIDFactory -down..> TypologyID
+TypologyService -left..> TypologyDTO
+TypologyRepository...> assemblerjpa
+TypologyRepository...> UPjpa
+
+@enduml

@@ -1,0 +1,16 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title US002 - As Non-Registered User, I want to activate a just registered user account
+
+autoactivate on
+autonumber
+
+actor "Non-Registered User" as User
+participant ":System" as System
+
+activate User
+
+User -> System: Starts the activation of a registered user account
+User <-- System: Informs operation success
+@enduml

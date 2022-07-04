@@ -1,0 +1,125 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+title US017 - As Authenticated User, I want to get a list of all projects I'm currently allocated to
+
+skinparam classAttributeIconSize 0
+
+package "System" <<Rectangle>> {
+
+package "Infrastructure" <<Rectangle>> #lightblue  {
+class "ShowAllCurrentProjectsByUserRoute" as route << Component >>
+}
+
+package "Interface Adapters" <<Rectangle>> #lightgreen {
+package "Controllers" <<rectangle>>{
+class "ShowAllCurrentProjectsByUserController" as ctrl << Component >> {
++showCurrentProjectsBySystemUser()
+}
+}
+package "Repositories" <<rectangle>>{
+class "SystemUserStore" as userStore << Repository >> {
+-users : List<SystemUser>
++existById()
+}
+class "ResourceStore" as resStore << Repository >> {
+-resources : List<Resource>
++findAllByUser()
+}
+class "ProjectStore" as projStore << Repository >> {
+-projects : List<Project>
++findById()
+}
+}
+}
+
+package "Application Service" <<Rectangle>> #lightpink{
+package "App Services" <<rectangle>>{
+class "ShowAllCurrentProjectsByUserService" as srv << Service >> {
++showCurrentProjectsBySystemUser()
+}
+}
+package "IRepositories" <<rectangle>>{
+interface "ISystemUserRepository" as userRepo{
+existById()
+}
+interface "IResourceRepository" as resRepo{
+findAllByUser()
+}
+interface "IProjectRepository" as projRepo{
+findById()
+}
+}
+}
+
+package "Domain" <<Rectangle>> #burlywood{
+package "Services" <<Rectangle>>{
+class "ManageResourcesService" as dsrv <<Service>>{
++currentResourcesByDate()
++listProjectsOfTheResources()
+}
+}
+package "Aggregates" <<rectangle>>{
+package "SystemUser" <<Rectangle>>{
+entity "SystemUser" as user << Root >>
+}
+package "Resource" <<Rectangle>>{
+entity "Resource" as res << Root >>{
++isActiveToThisDate()
++getProject()
+}
+}
+package "Project" <<Rectangle>>{
+entity "Project" as proj << Root >>
+}
+}
+package "Value Object" <<rectangle>>{
+class "SystemUserId" as uId << Value Object >> {
+systemUserId : Email
+}
+class "ResourceId" as rId << Value Object >>
+class "ProjectId" as pId << Value Object >>{
+projectId : ProjectCode
+}
+}
+}
+
+package "DTO" <<rectangle>>{
+class "ProjectMapper" as map <<Component>> {
++ model2Dto()
+}
+class "DateDTO" as dataDto <<Component>>
+class "IdDTO" as idDto <<Component>>
+class "ProjectDTO" as dto <<Component>>
+}
+class "ResponseEntity" as json <<Component>>
+}
+
+route .d.> ctrl
+ctrl .d..> srv
+srv .u.> userRepo
+srv .u.> resRepo
+srv .u.> projRepo
+srv ...> dsrv
+userRepo <|.u. userStore
+resRepo <|.u. resStore
+projRepo <|.u. projStore
+userStore "1"*----"*" user
+resStore "1"*----"*" res
+projStore "1"*----"*" proj
+dsrv ..> res
+user "1"*-d-"1" uId
+res "1"*-d-"1" rId
+proj "1"*-d-"1" pId
+rId "1" o- "1" pId
+rId "1" o- "1" uId
+srv .u.> map
+map .l.> dto
+ctrl .l.> json
+map ..> proj
+ctrl .r.> dataDto
+ctrl .r.> idDto
+srv .r.> dataDto
+srv .r.> idDto
+
+@enduml

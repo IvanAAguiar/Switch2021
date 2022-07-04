@@ -1,0 +1,26 @@
+@startuml
+title "US021 - As Product Owner I want to change the Priority of a user story in the backlog"
+
+autoactivate on
+autonumber
+
+participant "iUserStoryRepo: \n IUserStoryRepo" as Repo
+participant "assembler: \n UserStoryJpaAssembler" as Assembler
+participant "userStoryJPA: UserStoryJpa" as USJPA
+participant ": IUserStoryRepositoryJpa" as Driver
+participant "updated: UserStory" as US
+participant "updatedUserStory: \n UserStoryJpa" as Data
+
+[o->Repo: update(newUserStory)
+Repo -> Assembler : toData(newUserStory)
+Assembler --> USJPA **: create()
+return UserStoryJPA
+Repo -> Driver: save(userStoryJpa)
+Driver --> Data**: create(updatedUserStoryJpa)
+return updatedUserStory
+Repo -> Assembler: toDomain (updatedUserStory)
+Assembler --> US **: create()
+return userStory
+[<--Repo: userStory
+
+@enduml

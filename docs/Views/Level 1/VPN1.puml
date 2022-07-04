@@ -1,0 +1,17 @@
+@startuml
+
+title Process View Level 1
+
+
+autonumber
+
+participant "WebServer G5" as g5
+actor " UI " as ui
+participant "System" as system
+
+ui -> system: findAllProjects()
+system -> :getAllProjects()
+g5 -> system: findAllProjects()
+system -> :getAllProjects()
+
+@enduml

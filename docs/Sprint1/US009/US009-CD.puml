@@ -1,0 +1,167 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+'hide circle
+skinparam classAttributeIconSize 0
+
+title US009 - As Product Owner, I want to create a user story and add it to the Product Backlog
+
+skinparam classAttributeIconSize 0
+
+package "Infrastructure" <<Rectangle>> #lightblue  {
+package "Route" {
+class "CreateUserStoryRoute" as route << Component >>
+}
+
+    package "Persistence" {
+    interface "UserStoryJpaRepository" as jpa <<Interface>>
+    }
+}
+
+package "Interface Adapter" <<Rectangle>> #lightgreen {
+package "Controllers" {
+class "UserStoryController" as ctrl << Component >> {
++createUserStory(userStoryDTO)
+}
+}
+package "Repositories" {
+class "UserStoryRepository" as store << Repository >> {
+-userStoryList : List<UserStory>
++ save(newUserStory)
+}
+}
+}
+
+package "Application Service" <<Rectangle>> #lightpink{
+package "App Service" {
+class "UserStoryService" as service << Component >> {
++createAndSaveUserStory(userStoryDTO)
+}
+}
+package "Repositories Interface" {
+interface "IUserStoryRepo" as repo << Interface >>{
++ save(newUserStory)
+}
+}
+package "Factory Interface" {
+interface "IUserStoryFactory" as factoryInterface << Interface >>{
+createUserStory(userStoryDTO)
+}
+}
+}
+
+package "DTO" <<Rectangle>> {
+class "UserStoryMapper" as mapper << Component >> {
++ toDto(usSaved)
+}
+class "OutputUserStoryDTO" as outdto << Component >> {
+- id : String
+- priority : int
+- description : String
+- timeEstimate : double
+- parentUserStory : String
+- usStartDate : String
+- usEndDate : String
+- usRefined : String
+- status : String
+}
+class "UserStoryDTO" as dto << Component >> {
+- projectID : String
+- title : String
+- priority : int
+- description : String
+- timeEstimate : double
+}
+}
+
+package "Domain" <<Rectangle>> #burlywood{
+package "Aggregate" {
+class "UserStory" as userStory << Root >> {
+- userStoryID : UserStoryID
+- priority : UsPriority
+- description : Description
+- timeEstimate : UsHour
+- usStatus : UserStoryStatusEnum
+- parentUserStory : UserStory
+- usStartDate : LocalDate
+- usEndDate : LocalDate
+- usRefined : LocalDate
++ UserStory(userStoryID, priority, description, timeEstimate)
+}
+}
+package "Factory" {
+class "UserStoryFactory" as userStoryF << Factory >> {
++createUserStory(inDto)
+}
+}
+package "Value Object" {
+class "UserStoryID" as usID << Value Object >> {
+-projectID : ProjectID
+-usTitle : UsTitle
+}
+class "ProjectID" as projID << Value Object >> {
+-projectID : ProjectID
+}
+class "UsTitle" as usTitle << Value Object >> {
+- usTitle : UsTitle
+}
+class "Priority" as priority << Value Object >> {
+-priority : UsPriority
+}
+class "Description" as desc << Value Object >> {
+-description : Description
+}
+class "TimeEstimate" as time << Value Object >> {
+-timeEstimate : UsHour
+}
+}
+}
+
+  package "Data Model" <<Rectangle>>{
+        class "UserStoryJpaAssembler" as assemblerjpa <<Component>> {
+        +toData (newUserStory)
+        +toDomain(savedData)
+        }
+
+        class "UserStoryJpa" as USjpa {
+        - id : UserStoryID
+        - priority : int
+        - description : String
+        - timeEstimate : double
+        - usStatus : String
+        - parentUserStory : "UserStoryJpa"
+        - startDate : String
+        - endDate : String
+        - refined : String
+        }
+
+
+
+
+
+route ..> ctrl
+ctrl..> service
+ctrl..up>outdto
+store..|> repo
+service .r.> mapper
+service .r.> dto
+mapper ..> outdto
+userStoryF .u.> dto
+service..> factoryInterface
+service..left> repo
+userStoryF..> usID
+userStoryF..>projID
+userStoryF..>usTitle
+userStoryF..>priority
+userStoryF..up>time
+userStoryF..>desc
+userStoryF..right>userStory
+userStoryF..up|>factoryInterface
+store ...> assemblerjpa
+store ...> USjpa
+store ..> jpa
+
+
+
+
+@enduml

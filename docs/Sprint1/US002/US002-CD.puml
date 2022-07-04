@@ -1,0 +1,136 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+skinparam classAttributeIconSize 0
+
+title US002 - As Non-Registered User, I want to activate a just registered user account
+
+skinparam classAttributeIconSize 0
+
+'''''''''''''''''''''''''''''''
+package "Infrastructure" <<Rectangle>> #lightblue  {
+package "Route"{
+    class "ActivateRegisterUserRoute" as route << Component >>
+    }
+
+package "Persistence" {
+    interface "IUserJPARepository" as iUserRepositoryJPA << Interface >>{
+    + saveAndFlush(userJPA)
+    }
+    }
+}
+'''''''''''''''''''''''''''''''
+package "Interface Adapter" <<Rectangle>> #lightgreen {
+
+  package "Controllers" <<Folder>>{
+    class "UserController" as ctrl << Component >> {
+    +activateUser(idDTO)
+    }
+  }
+  package "Repositories" <<Folder>>{
+    class "UserRepository" as UserRepo << Repository >> {
+    + findUserByID(userID)
+    + save(user)
+    }
+  }
+}
+
+package "Application Service API/Use Case Service" <<Rectangle>> #lightpink{
+  package "App Service" <<Folder>>{
+    class "UserService" as service << Component >> {
+    +activateUser(user)
+    }
+  }
+  package "Repositories Interface" <<Folder>>{
+    interface "IUserRepo" as iUserRepo << Interface >>{
+    + findUserByID(userID)
+    + save(user)
+    }
+  }
+}
+'''''''''''''''''''''''''''''''
+package "DTO" <<Rectangle>> {
+  package "IDDTO" <<Folder>>{
+    class "idDTO" as idDto << Component >> {
+    - id : String
+    }
+  }
+
+  package "OutputUserDTO" <<Folder>>{
+    class "OutputUserDTO" as outDto << Component >> {
+    - userName : String
+    - email : String
+    - function : String
+    - photo : String
+    - isActive : String
+    - assignedIDProfiles : String []
+    }
+  }
+
+  package "UserMapper" <<Folder>>{
+    class "UserMapper" as mapper << Component >> {
+    + toDto(savedUser)
+    }
+  }
+}
+
+package "Data Model" <<Rectangle>>{
+package "Assembler" as generalAssember {
+    class "UserJPAAssembler" as assembler <<Component>>{
+    +toDomain(foundUserJPA)
+    +toDomain(savedUserJPA)
+    }
+    }
+package "JPA" as generalJPA {
+    class "UserJPA" as jpa {
+    + create()
+    }
+    }
+}
+'''''''''''''''''''''''''''''''
+package "Domain" <<Rectangle>> #burlywood{
+  package "UserAggregate" as SUAggregate <<Folder>>{
+    class "User" as user << Root >> {
+    - userName : Name
+    - photo : Photo
+    - encryptedPassword : Description
+    - function : Function
+    - isActive : boolean
+    - requestedProfiles : List<Request>
+    + SystemUser(systemUserID)
+    }
+  }
+
+  package "Value Object" as valueObject <<Folder>>{
+    class "UserID" as SUID << Value Object >> {
+    -email : Email
+    +SystemUserID(email)
+    }
+
+}
+'''''''''''''''''''''''''''''''
+Class UserRepo implements iUserRepo
+
+route..d->ctrl
+UserRepo..>iUserRepositoryJPA
+
+ctrl-d[hidden]->iUserRepo
+ctrl..d->service
+
+UserRepo "1"*-"*" user
+UserRepo-d[hidden]->iUserRepo
+
+service..u>iUserRepo
+service..r>mapper
+service..r>idDto
+mapper..d>outDto
+
+user "1"-d>"1"SUID: is identified by
+
+
+UserRepo .down.> jpa
+UserRepo .down.> assembler
+
+
+
+@enduml

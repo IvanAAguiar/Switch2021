@@ -1,0 +1,29 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+
+'Layout Format---------------------------------------------
+left to right direction
+'hide circle
+skinparam classAttributeIconSize 0
+
+
+title Domain Model
+
+
+'Project Aggregate:--------------------------------------------------
+entity Project #Gold{
+-projectName
+-description
+-typologyId
+-projectStatus
+-customer
+-businessSector
+-numberOfSprints
+-budget
+-sprintDuration
+-startDate
+-endDate
+}
+
+@enduml

@@ -1,0 +1,19 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title US017 - As Authenticated User, I want to get a list of all projects I'm currently allocated to
+
+autoactivate on
+autonumber
+
+actor "Authenticated User" as User
+participant ":System" as System
+
+activate User
+
+User -> System: wants to get all projects I'm currently allocated to
+System->System: get the projects list founded
+deactivate System
+System-->User: return the list of founded projects
+
+@enduml

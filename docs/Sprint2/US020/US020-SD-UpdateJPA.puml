@@ -1,0 +1,26 @@
+@startuml
+title "US020 - As Product Owner, I want to refine a broad user story of the Product Backlog into more focused user stories."
+
+autoactivate on
+autonumber
+
+participant "iUserStoryRepo: \n IUserStoryRepo" as Repo
+participant "assembler: \n UserStoryJpaAssembler" as Assembler
+participant "userStoryJPA: UserStoryJpa" as USJPA
+participant ": IUserStoryRepositoryJpa" as Driver
+participant "updated: UserStory" as US
+participant "updatedUserStory: \n UserStoryJpa" as Data
+
+[o->Repo: update(us)
+Repo -> Assembler : toData(us)
+Assembler --> USJPA **: create()
+return UserStoryJPA
+Repo -> Driver: save(userStoryJpa)
+Driver --> Data**: create(updatedUserStoryJpa)
+return updatedJpa
+Repo -> Assembler: toDomain (updatedJpa)
+Assembler --> US **: create()
+return updated
+[<--Repo: updated
+
+@enduml

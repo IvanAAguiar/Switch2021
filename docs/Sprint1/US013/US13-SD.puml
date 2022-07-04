@@ -1,0 +1,45 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autoactivate on
+autonumber
+
+title US013 - "As Administrator, I want to create user profiles"
+participant ": CreateUserProfileRouter" as System
+participant ": UserProfileController" as Ctrl
+participant ": CreateUserProfileService" as C1
+participant ": IUserProfileFactory" as C3
+participant "userProfile: \nUserProfile" as newUserProfile
+participant ":IUserProfileRepository" as C5
+participant ":UserProfileMapper" as C6
+participant "outputDTO: \nUserProfileDTO" as C2.1
+
+
+[o-> System: POST/profiles (json)
+System -> Ctrl: createUserProfile(userProfileDTO)
+note right
+Change from json to dto hidden to simplify diagram
+end note
+Ctrl -> C1: createAndSaveUserProfile(userProfileDTO)
+C1 -> C3: createUserProfile(dto)
+note over C3 : The changes of attributes are hidden to simplify the diagram
+C3 -> newUserProfile **: create\n(userProfileId)
+return newUserProfile
+C1 -> C5 : save (newUserProfile)
+ref over C5: [[US13SD_JPA.puml]]
+return true
+C1 -> C6: toDTO(newUserProfile)
+C6 -> C2.1 **: create()
+return outputdto
+return outputdto
+return outputjson
+note right
+Change from json to dto hidden to simplify diagram
+end note
+return Informs that user \nprofile was created
+
+
+
+
+
+@enduml

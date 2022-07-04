@@ -1,0 +1,169 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+title US001 - As Non-Registered User, I want to register as an application user.
+
+skinparam classAttributeIconSize 0
+
+'''''''''''''''''''''''''''''''
+package "Infrastructure" <<Rectangle>> #lightblue  {
+package "Route"{
+    class "RegisterUserRoute" as route << Component >>
+    }
+
+package "Persistence" {
+    interface "IUserRepositoryJPA" as iUserRepositoryJPA << Interface >>
+    }
+}
+'''''''''''''''''''''''''''''''
+package "Interface Adapter" <<Rectangle>> #lightgreen {
+
+  package "Controllers" <<Folder>>{
+    class "UserController" as ctrl << Component >> {
+    +registerUser(NewUserInfoDTO)
+    }
+  }
+  package "Repositories" <<Folder>>{
+    class "UserRepository" as SUrepo << Repository >> {
+    -usersList : List<User>
+    + save(newUser)
+    + existsByEmail(email)
+    }
+  }
+}
+'''''''''''''''''''''''''''''''
+'class "ResponseEntity" as json <<Component>>
+'''''''''''''''''''''''''''''''
+package "Application Service API/Use Case Service" <<Rectangle>> #lightpink{
+  package "App Service" <<Folder>>{
+    class "UserService" as service << Component >> {
+    +createAndSaveSystemUser(NewUserInfoDTO)
+    }
+  }
+  package "Repositories Interface" <<Folder>>{
+    interface "IUserRepo" as ISUrepo << Interface >>{
+    + save(newUser)
+    + existsByEmail(email)
+    }
+  }
+}
+'''''''''''''''''''''''''''''''
+package "DTO" <<Rectangle>> {
+  package "NewUserInfoDTO" <<Folder>>{
+    class "NewUserInfoDTO" as infoDto << Component >> {
+    - userName : String
+    - email : String
+    - function : String
+    - password : String
+    - passwordConfirmation : String
+    - photo : String
+    }
+  }
+
+  package "OutputUserDTO" <<Folder>>{
+    class "OutputUserDTO" as outDto << Component >> {
+    - userName : String
+    - email : String
+    - function : String
+    - photo : String
+    - isActive : String
+    - assignedIDProfiles : String []
+    }
+  }
+
+  package "UserMapper" <<Folder>>{
+    class "UserMapper" as mapper << Component >> {
+    + toDto(savedUser)
+    }
+  }
+}
+
+package "Data Model" <<Rectangle>>{
+package "Assembler" as generalAssember {
+    class "UserAssembler" as assembler <<Component>>{
+    +toData (user)
+    +toDomain(userJPA)
+    }
+    }
+package "JPA" as generalJPA {
+    class "UserJPA" as jpa {
+    }
+    }
+}
+'''''''''''''''''''''''''''''''
+package "Domain" <<Rectangle>> #burlywood{
+  package "UserAggregate" as SUAggregate <<Folder>>{
+    class "User" as SU << Root >> {
+    - userName : Name
+    - photo : Photo
+    - encryptedPassword : Description
+    - function : Function
+    - isActive : boolean
+    - requestedProfiles : List<Request>
+    + SystemUser(systemUserID)
+    }
+  }
+  /'package "UserProfileAggregate" <<Folder>>{
+    class "UserProfile" as UP << Root >> {
+    + UserProfile(userProfileId)
+    }
+  }'/
+  package "Factory" as factory <<Folder>>{
+    class "UserFactory" as SUFact << Factory >> {
+    +createSystemUser(NewUserInfoDTO)
+    }
+  }
+  package "Factory Interface" as factoryInterface <<Folder>>{
+    interface "IUserFactory" as IUSerFactory <<Factory Interface>> {
+    +createSystemUser(NewUserInfoDTO)
+    }
+  }
+
+  package "Value Object" as valueObject <<Folder>>{
+    class "UserID" as SUID << Value Object >> {
+    -email : Email
+    +SystemUserID(email)
+    }
+    class "UserProfileID" as UPID << Value Object >> {
+    -profileName : Description
+    +UserProfileID(profileName)
+    }
+  }
+}
+'''''''''''''''''''''''''''''''
+Class SUrepo implements ISUrepo
+Class SUFact implements IUSerFactory
+
+route..d->ctrl
+route--[hidden]d->SUrepo
+SUrepo..>iUserRepositoryJPA
+
+ctrl-d[hidden]->ISUrepo
+ctrl-d[hidden]->IUSerFactory
+ctrl..d->service : uses
+ctrl-d[hidden]->IUSerFactory
+
+SUrepo "1"*-"*" SU
+SUrepo-d[hidden]->ISUrepo
+
+service..d>IUSerFactory : uses
+service..u>ISUrepo: uses
+service..r>mapper : uses
+service..r>infoDto : uses
+mapper..d>outDto : uses
+mapper..u[hidden]>infoDto
+SUFact..r>SU : uses
+SUFact..d>UPID : uses
+SUFact..d>SUID : uses
+
+SU "1"-d>"1"SUID: is identified by
+SU "*"-d>"1..*"UPID: is assigned
+factory-r[hidden]>SUAggregate
+factory-l[hidden]>valueObject
+
+SUrepo .right.> jpa
+SUrepo .right.> assembler
+
+
+
+@enduml

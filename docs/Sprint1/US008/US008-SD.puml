@@ -1,0 +1,70 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+title US008 - As a Project Manager I want to edit some project information
+
+autoactivate on
+autonumber
+
+
+participant ": EditProjectRoute " as route
+participant ": ProjectController " as controller
+participant ": ProjectService " as service
+participant ": IProjectRepo " as store
+participant ": ProjectMapper " as mapper
+participant "outputProjectDTO : \nOutputProjectDTO " as dto
+participant "exception: \nException" as exc
+participant "proj:Project " as project
+participant "response: \nResponseEntity" as json
+
+
+[o->  route: PATCH /projects/{id}
+route -> controller: updateProjectPartially\n(editProjectInfoDTO)
+
+note right route: Change from json to dto hidden to simplify diagram
+
+controller -> service: updateProjectPartially (editProjectInfoDTO)
+
+note over service : The creation of the projID are hidden to simplify the diagram.
+
+service -> store: findById(projID)
+
+ref over store: [[US008-SD-JPA-Project.puml]]
+
+store --> service: proj
+
+alt if project exist
+
+service -> project: setProjectInfo(editProjectInfoDTO)
+
+note over project : The changes of attributes are hidden to simplify the diagram .
+
+project --> service : proj
+
+service -> store : save(proj)
+
+ref over store: [[US008-SD-JPA-Save.puml]]
+store --> service : savedProj
+
+service -> mapper: model2DTO(savedProj)
+
+mapper -> dto**: create()
+
+mapper --> service: outputProjectDTO
+
+else if project does not exist
+
+service --> exc** : create(errorMessage)
+
+end
+
+service --> controller: outputProjectDTO
+controller --> json**: create(outputProjectDTO)
+
+controller --> route: response
+
+
+[<-- route: Show the modified project
+
+@enduml
+

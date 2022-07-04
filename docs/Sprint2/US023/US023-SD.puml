@@ -1,0 +1,98 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+title US005 -  As a Team Member i want to add a story from the productbacklog to the sprintbacklog
+
+autoactivate on
+autonumber
+
+actor "Team Member" as TM
+
+participant ":AddUserStoryUI " as UI
+participant ":AddUserStoryController " as Controller
+participant ":Company" as Company
+participant "projectStore:ProjectStore " as projStore
+participant ":ProjectMapper" as mapper
+participant "DTOlist:ProjectDTOList " as DTOlist
+participant "CurrentProjectListByUser:List<Projects> " as currentList
+participant "DTO:ProjectDTO " as DTO
+participant "project:Project " as proj
+participant "sprintList:SprintStore " as sprintStore
+participant "productBacklog:ProductBacklog " as ProductBacklog
+participant "sprintBacklog:SprintBacklog " as SprintBacklog
+
+
+activate TM
+TM -> UI: Access current list of projects
+UI -> Controller: getCurrentProjectListByUser(email)
+Controller -> Company: getProjectStore()
+Company --> Controller: projectStore
+Controller -> projStore: getCurrentProjectListByUser(email)
+projStore -> currentList**: create(email)
+projStore --> Controller:currentProjectListByUser
+
+Controller-> mapper: toDtoByUser(projectListByUser)
+mapper->DTOlist ** : create()
+
+loop for each known project in projectList
+mapper->currentList: code = getCode()
+deactivate currentList
+mapper->currentList: projectName = getprojectName()
+deactivate currentList
+mapper->currentList: description = getDescription()
+deactivate currentList
+mapper->DTO ** : create (code, projectName, description)
+mapper->DTOlist: add(projectListByUserDto)
+DTOlist-->mapper: true
+end
+
+mapper --> Controller: projectListByUserDtoList
+
+Controller --> UI: projectListByUserDtoList
+UI--> TM: Shows Project List
+
+TM -> UI: Chooses Project
+UI -> Controller: getProjectByCode(code)
+
+deactivate projStore
+
+ref over Controller, currentList : US:033 create Project DTO
+
+Controller --> UI: projectDTO
+UI --> TM: Shows Project
+
+TM -> UI: Asks for sprint list of project
+UI -> Controller: getSprintList()
+Controller -> proj: getSprintStore()
+proj --> Controller: sprintList
+Controller --> UI: sprintList
+UI --> TM: Shows Sprint List
+
+TM -> UI: Chooses sprint from sprint list
+UI -> Controller: getSprintById(sprintID)
+Controller -> sprintStore: getSprintById(sprintID)
+sprintStore --> Controller: sprint
+Controller --> UI: sprint
+UI --> TM: Shows Sprint
+
+TM -> UI: Asks for user story list
+UI -> Controller: getUserStoryStore()
+Controller -> proj: getUserStoryStore()
+proj --> Controller: productBacklog
+Controller --> UI: productBacklog
+UI --> TM: Shows product backlog
+
+TM -> UI: Chooses user story from the product backlog and adds it to the sprint backlog
+UI -> Controller: addUserStoryToSprintBacklog()
+Controller -> ProductBacklog: getUserStory(userStoryID)
+ProductBacklog --> Controller: userStory
+Controller -> SprintBacklog: saveUserStoryToSprintBacklog(userStory)
+SprintBacklog -> SprintBacklog: validateUserStory(userStory)
+SprintBacklog -> SprintBacklog: add(userStory)
+deactivate
+deactivate
+SprintBacklog --> Controller: true
+Controller --> UI: true
+UI --> TM: Shows confirmation of addition
+
+@enduml

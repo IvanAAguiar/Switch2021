@@ -1,0 +1,220 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+'hide circle
+skinparam classAttributeIconSize 0
+
+title US010 - As Authenticated user, i want to update its own data (e.g. photo, function...)
+
+skinparam classAttributeIconSize 0
+
+package "Infrastructure" <<Rectangle>> #lightblue  {
+package "Route"{
+class "UpdatePersonalDataRoute" as route << Component >>
+}
+package "Persistence"{
+interface "UserJpaRepository" as iUserRepositoryJPA << Interface >>
+}
+}
+
+
+package "Interface Adapter" <<Rectangle>> #lightgreen {
+package "Controllers" <<Folder>>{
+class "UserController" as controller << Component >> {
++updatePersonalData(json)
+}
+}
+package "Repositories" {
+class "UserRepository" as repository << Repository >> {
++ findByUserId(userID)
++ save(user)
+}
+}
+}
+package "Application Service API" <<Rectangle>> #lightpink{
+package "App Service" <<Folder>>{
+class "UserService" as service << Component >> {
++updatePersonalData(updateDataDTO)
+}
+}
+package "IRepositories" <<Folder>>{
+interface "IUserRepo" as interfaceSystemUserRepo << Interface >>{
++ findByUserId(userID)
++ save(user)
+}
+}
+package IFactories {
+ interface "IUserIDFactory" as IUSerFactory <<Factory Interface>> {
+   +createUserID(id)
+    }
+ }
+}
+package "DTO" <<Rectangle>> {
+package "DTO " <<Folder>>{
+class "UpdateDataDTO" as dto << Component >> {
+- userName : String
+- function : String
+- photo : String
+- oldPassword : String
+- newPassword : String
+}
+class "OutPutUserDTO" as outputUserDTO << Component >> {
+- userName : String
+- email : String
+- function : String
+- photo : String
+- isActive : String
+- assignedIdProfiles : String []
+}
+}
+package "DTO" <<Folder>> {
+package "UserMapper" <<Folder>>{
+class "UserMapper" as mapper << Component >> {
++ toDto(updatedUser)
+}
+}
+}
+
+package "Domain" <<Rectangle>> #burlywood{
+
+package "Aggregate" <<Folder>>{
+class "User" as user << Root >> {
+- userID : UserID
+- userName : Name
+- photo : Photo
+- password : Password
+- function : Function
+- isActive : false
++ User(userId, userName, photo, password, passwordConfirmation, function, visitorID)
+}
+}
+
+package "Factory" as factory <<Folder>>{
+
+package "VO Factories" as vofac <<Folder>> {
+
+    class "UserIDFactory" as useridfac <<Factory>> {
+    +createUserID(emailText)
+    }
+
+    class "UserProfileID" as userprofilefac <<Factory>> {
+    +createUserID(userProfileName)
+        }
+
+    class "NameFactory" as namefac <<Factory>> {
+     +createName(name)
+         }
+
+    class "PhotoFactory" as photofac <<Factory>> {
+    +createPhoto(photo)
+             }
+
+    class "PasswordFactory" as pwdfac <<Factory>> {
+    +createPassword(password)
+               }
+
+     class "FunctionFactory" as functionfac <<Factory>> {
+     +createFunction (function)
+         }
+    }
+        class "UserFactory" as userfactory <<Factory>> {
+    +createUser(userDTO)
+    }
+
+   }
+
+   package "Factory Interface" as int <<Folder>> {
+   package "VO Factory Interface" as factoryInterface <<Folder>>{
+
+   class "IUserProfileIDFactory" as iUserProfileIDFactory <<(I, Violet) Interface>> {
+        +createUserProfileID(userProfileName)
+             }
+
+   class "IFunctionFactory" as iFunctionFactory <<(I, Violet) Interface>> {
+        +createFunction(function)
+             }
+
+   class "IPasswordFactory" as iPwdFactory <<(I, Violet) Interface>> {
+        +createPassword(password)
+             }
+
+   class "IPhotoFactory" as iPhotoFactory <<(I, Violet) Interface>> {
+        +createPhoto(photo)
+             }
+
+   class "INameFactory" as iNameFactory <<(I, Violet) Interface>> {
+         +createName(name)
+              }
+
+   class "IUserIDFactory" as iUserIDFactory <<(I, Violet) Interface>> {
+         +createUserID(emailText)
+              }
+         }
+  class "IUserFactory" as iUserFactory <<(I, Violet) Interface>> {
+            +createUser(infoDTO)
+                 }
+         }
+
+package "Value Object" {
+class "UserID" as VO <<Value Object>> {
++UserID(email)
+}
+
+class "Name" as VO1 <<Value Object>> {
++Name (text)
+}
+
+class "Photo" as VO2 <<Value Object>> {
++Photo (photo)
+}
+
+class "Password" as VO3 <<Value Object>> {
++Password (pwd)
+}
+
+
+class "Function" as VO4 <<Value Object>> {
++Function (function)
+}
+
+class "UserProfileID" as VO5 <<Value Object>> {
++UserProfileID (userProfileName)
+}
+}
+}
+
+package "Data Model" <<Rectangle>>{
+package "Assembler" <<Folder>> {
+        class "UserJpaAssembler" as assemblerjpa <<Component>> {
+        +toData (user)
+        +toModel(userJPA)
+        }
+     }
+    package "JPA" <<Folder>> {
+        class "UserJpa" as ujpa {
+        -email: UserID
+        -userName: String
+        -function:String
+        -password: String
+        -isActive: String
+        -assignedIDProfiles: List<UserProfileID>
+        }
+
+repository..up>iUserRepositoryJPA
+route ..> controller
+controller ..> service
+service ..> dto
+service ..> interfaceSystemUserRepo
+repository ..|> interfaceSystemUserRepo
+service ..> IUSerFactory
+service ..> mapper
+mapper ..> outputUserDTO
+
+repository ..> jpa
+repository ..> assembler
+SUID "1"*-->"1" systemuser : is identified by
+SUFact..>systemuser
+userfactory ..|> iUserFactory
+service ..down.> iUserFactory
+
+@enduml

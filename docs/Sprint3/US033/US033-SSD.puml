@@ -1,0 +1,31 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title US033 System Sequence Diagram
+
+autoactivate on
+autonumber
+
+actor "SM/Team Member" as User
+participant ":System" as System
+
+activate User
+
+User -> System: wants to register a new user story task effort. Access user's task list
+System->System: get the user's list of tasks
+deactivate System
+System-->User: asks to select the task
+
+User -> System: selects the intended task
+System-->User: shows task details
+User->System : starts registering a new task effort
+System-->User: requests data (workHours, workMinutes, workDate, comment, attachment)
+User -> System: types requested data
+System->System: create and save a new task effort
+deactivate System
+System->System: update task work done
+deactivate System
+System->System: update user story work done
+deactivate System
+System-->User : Informs operation success.
+@enduml

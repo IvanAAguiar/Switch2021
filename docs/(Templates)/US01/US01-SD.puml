@@ -1,0 +1,23 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title Example of a Sequence Diagram
+
+autoactivate on
+autonumber
+
+actor "User" as User
+participant ":{XXX}UI" as System
+participant ":{XXX}Controller" as Ctrl
+participant ":Class1" as C1
+
+activate User
+
+User -> System: Authentication Request
+System -> Ctrl: authenticate(userId, pwd)
+Ctrl -> C1: doLogIn(userId, pwd)
+C1 --> Ctrl: userToken
+Ctrl --> System: ok
+System --> User: Authentication Response
+
+@enduml

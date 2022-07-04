@@ -1,0 +1,58 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+hide circle
+skinparam classAttributeIconSize 0
+
+title Class Diagram Get List of Human Resources in a Project
+
+class GetListHResourceProjectUI {
+
+}
+
+class GetListHResourceProjectController {
+    +getProjectTeam()
+}
+
+class Company {
+    +getProjectStore()
+}
+
+class ProjectStore {
+    +getProjectByCode(projCode)
+}
+
+class Project {
+    +getProjectTeam()
+}
+
+class ProjectTeam {
+    +getProjectTeamList()
+    +get(i)
+}
+
+class ProjectTeamMapper {
+    +toDTO(projectTeamList)
+    +createResourceDTO(res)
+}
+
+class Resource {
+    +Resource()
+}
+
+GetListHResourceProjectUI ..> GetListHResourceProjectController
+
+GetListHResourceProjectController ..> ProjectTeam
+GetListHResourceProjectController ..> Company
+GetListHResourceProjectController ..> ProjectStore
+GetListHResourceProjectController ..> Project
+GetListHResourceProjectController ..> ProjectTeamMapper
+
+
+'GetListHResourceProjectController -> Company
+Company "1" o-- "1" ProjectStore: has
+ProjectStore"1" *-- "*"Project: contains
+Project"1" *-- "1"ProjectTeam: contains
+ProjectTeamMapper "1" *-- "*"Resource: creates
+ProjectTeamMapper "1" *-- "*"ProjectTeam: creates
+@enduml

@@ -1,0 +1,14 @@
+@startuml
+
+title US012 - "As Director, I want to create a new project typology."
+
+autoactivate on
+autonumber
+
+actor "Director" as Director
+participant ":System" as System
+
+Director -> System: Starts the creation of a new typology
+return Informs operation status
+
+@enduml

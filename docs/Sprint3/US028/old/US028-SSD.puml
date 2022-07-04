@@ -1,0 +1,17 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title US028 - As Director, I want to get a list of all human resources in a project
+
+autoactivate on
+autonumber
+
+actor "Director" as Director
+participant ":System" as System
+
+activate Director
+
+Director -> System: Ask to access project team of a project
+System --> Director: List of resources associated to a project
+
+@enduml

@@ -1,0 +1,55 @@
+@startuml
+'https://plantuml.com/class-diagram
+hide circle
+skinparam classAttributeIconSize 0
+hide methods
+
+title As Project Member, I want to update the status (i.e.: the Scrum Board category) of a user story in the scope of the current sprint backlog.
+
+
+class Company {
+    -designation
+}
+
+class Project {
+-code
+-projectName
+-description
+-startDate
+-endDate
+-numberOfSprints
+-sprintDuration
+}
+
+class Sprint {
+-name
+-startDate
+-endDate
+}
+
+class SprintBacklog {
+    -designation
+}
+
+class UserStory {
+-name
+-priority
+-description
+-parentUserStory
+-timeEstimate
+-workDone
+}
+
+class UserStoryStatus {
+-description
+-sprintAvailable
+}
+
+
+Project "*" -> "1" Company: belongs to
+Project "1" -> "*" Sprint: is divided
+Sprint "1" -> "1" SprintBacklog: origins
+SprintBacklog "*" -> "1..*"UserStory: is composed by
+UserStory "*" -> "1" UserStoryStatus: includes
+
+@enduml

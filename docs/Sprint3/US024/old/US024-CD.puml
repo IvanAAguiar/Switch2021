@@ -1,0 +1,65 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+hide circle
+skinparam classAttributeIconSize 0
+
+title US024 - As Administrator, I want to get a list all user accounts and their status
+
+class SystemUserWithStatusUI {
+
+}
+
+class SystemUserWithStatusController {
+    +getListUserAccountsWithStatus()
+
+}
+
+class Company {
+    +getSystemUserStore()
+}
+
+class SystemUserStore {
++getSystemUsers()
+}
+
+class SystemUserWithStatusMapper{
++toDto(systemUserList)
+}
+
+class SystemUser {
+-userName : String
+-email : String
+-photo : String
+-password : String
+-function : String
+-activateUser : boolean
+-assignedProfileList : List<UserProfile>
++getUserName()
++getEmail()
++getAtivatateUserStatus()
+}
+
+class SystemUserWithStatusDto {
+-userName : String
+-email : String
+-activateUser : boolean
++create()
++create(userName, email, ativateUserStatus)
++add(systemUserWithStatusDto)
+
+}
+
+SystemUserWithStatusUI ..> SystemUserWithStatusController
+
+SystemUserWithStatusController ..> Company
+SystemUserWithStatusController ..> SystemUserStore
+SystemUserWithStatusController ..> SystemUserWithStatusMapper
+SystemUserWithStatusMapper ..> SystemUserWithStatusDto
+
+
+
+Company "1" o-- "1" SystemUserStore: uses
+SystemUserStore "1" *-- "0..*" SystemUser: has
+
+@enduml

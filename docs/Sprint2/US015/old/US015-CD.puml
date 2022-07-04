@@ -1,0 +1,74 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+title US015 - As Director, I want to get a list of all projects
+
+skinparam classAttributeIconSize 0
+
+package "System" <<Rectangle>> {
+
+package "Infrastructure" <<Rectangle>> #lightblue  {
+class "ShowAllProjectsRoute" as route << Component >>
+}
+
+package "Interface Adapters" <<Rectangle>> #lightgreen {
+package "Controllers" <<rectangle>>{
+class "ProjectController" as ctrl << Component >> {
++showAllProjects()
+}
+}
+package "Repositories" <<rectangle>>{
+class "ProjectStore" as store << Component >> {
+-projects : List<Project>
++findAll()
+}
+}
+}
+
+package "Application Service" <<Rectangle>> #lightpink{
+package "App Services" <<rectangle>>{
+class "ShowAllProjectsService" as srv << Component >> {
++showAllProjects()
+}
+}
+package "IRepositories" <<rectangle>>{
+interface "IProjectRepository" as repo{
+findAll()
+}
+}
+}
+
+package "Domain" <<Rectangle>> #burlywood{
+package "Aggregates" <<rectangle>>{
+package "Project" <<Rectangle>>{
+entity "Project" as proj << Root >>
+}
+}
+package "Value Object" <<rectangle>>{
+class "ProjectId" as pId << Value Object >>
+}
+}
+
+package "DTO" <<rectangle>>{
+class "ProjectMapper" as map <<Component>> {
++ model2Dto()
+}
+class "ProjectDTO" as dto <<Component>>
+}
+
+class "ResponseEntity" as json <<Component>>
+
+}
+
+route .d.> ctrl
+ctrl .d..> srv
+srv .r.> repo
+repo <|.. store
+store "1"*----"*" proj
+proj "1"*-l-"1" pId
+srv .u.> map
+map .r.> dto
+ctrl .l.> json
+map ..> proj
+
+@enduml

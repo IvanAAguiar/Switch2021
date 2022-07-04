@@ -1,0 +1,109 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+skinparam classAttributeIconSize 0
+
+title US005 - As a Director, I want to create/register a new project
+
+package "Infrastructure" <<Package>>  #lightblue {
+class "CreateProjectRoute" as infra <<Component>>{
+}
+}
+
+package Interface_Adapters <<Package>> #lightgreen{
+package "Controllers" <<Package>> {
+class "ProjectController" as Ctrl <<component>> {
++createProject(jsonDTO)
+}
+}
+package Repositories <<Package>> {
+class "ProjectRepository" as projectRepo <<repository>> {
+-projects : List<Project>
++saveProject(newProject)
+-validateProject(newProject)
+-add(newProject)
+}
+}
+}
+
+package Domain <<Package>> #burlywood{
+package "Aggregates" <<Package>> {
+class "Project" as project <<root>> {
+-name : Name
+-description : Description
+-businessSector : BusinessSector
+-startDate : LocalDate
+-numberOfSprints : NumberOfSprints
+-sprintDuration : SprintDuration
+-budget : Budget
++Project(name, description, businessSector, startDate, numberOfSprints, sprintDuration, budget)
+}
+}
+package "Factories" <<Package>> {
+class "ProjectFactory" as factory <<service>> {
++createProject(projectDTO, nextID)
+}
+}
+}
+
+package "DTO" <<Package>> #lightgrey{
+class "ProjectMapper" as mapper <<component>> {
++model2Dto()
+}
+
+class "ProjectDTO" as projectDTO <<component>> {
+-name : String
+-description : String
+-businessSector: String
+-startDate : String
+-numberOfSprints : String
+-budget : String
+-sprintDuration : String
+}
+
+class "OutPutProjectDTO" as outPutDTO <<component>> {
+-code : String
+-name : String
+-description : String
+-businessSector: String
+-numberOfSprints : String
+-budget : String
+-status : String
+-startDate : String
+}
+}
+
+package Application_Service <<Package>> #salmon {
+package IFactory <<Package>> {
+interface "IProjectFactory" as inter <<interface>>{
++createProject(projectDTO, nextID)
+}
+}
+package IRepositories <<Package>> {
+interface "IProjectRepo" as iRepo <<interface>>{
++saveProject(newProject)
++existsById(id)
+}
+}
+
+package "App Service" <<Package>> {
+class "CreateProjectService" as service <<service>> {
++createAndSaveProject()
+}
+}
+}
+
+infra ..> Ctrl
+Ctrl ..> service
+projectRepo ..|> iRepo
+service .left.> iRepo
+service ..> inter
+service ..> mapper
+factory .up.|> inter
+factory .right.> project
+factory ..> projectDTO
+mapper ..> projectDTO
+mapper ..> outPutDTO
+
+
+@enduml

@@ -1,0 +1,18 @@
+@startuml
+left to right direction
+hide circle
+skinparam classAttributeIconSize 0
+
+title Domain Model
+
+'User Aggregate:--------------------------------------------------
+entity User #Gold{
+userName
+photo
+encryptedPassword
+function
+isActive
+requestedProfiles
+}
+
+@enduml

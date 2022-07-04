@@ -1,0 +1,67 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title US029 - As Project Manager, I want to start a sprint
+
+autoactivate on
+autonumber
+
+actor "Project Manager" as ProjectManager
+participant ":startASprintUI" as UI
+participant ":startASprintController" as Ctrl
+participant "sprintDTO:StartASprintDTO" as sprintDTO
+participant ":Company" as company
+participant "projectStore:ProjectStore" as projectStore
+participant "projectList : List<Project>" as projectList
+participant "proj:Project" as proj
+participant "sprintList:SprintList" as sprintList
+participant "sprintList : List<Sprint>" as listSprint
+participant "sprint:Sprint" as sprint
+participant "projectTeam:ProjectTeam" as projectTeam
+
+activate ProjectManager
+
+ProjectManager -> UI: Asks to Start a Sprint
+UI -> Ctrl: startASprint(sprintDTO)
+Ctrl -> sprintDTO: code = getCode()
+deactivate sprintDTO
+Ctrl -> company: getProjectStore()
+company --> Ctrl: projectStore
+Ctrl -> projectStore: getProjectByCode(code)
+loop  for each known project in projectList
+projectStore -> projectList: get(i)
+projectList --> projectStore: proj
+projectStore -> proj: hasCode(code)
+return true
+end
+return proj
+Ctrl -> sprintDTO: sprintID = getSprintID()
+deactivate sprintDTO
+Ctrl -> sprintDTO: startDate = getStartDate()
+deactivate sprintDTO
+Ctrl -> proj: getProjectTeam()
+proj --> Ctrl: projectTeam
+Ctrl -> proj: getSprintDuration
+proj --> Ctrl: sprintDuration
+deactivate proj
+Ctrl -> sprintList: startASprint(sprintID, startDate, projectTeam, sprintDuration)
+sprintList -> sprintList: res1 = validateStartDate(startDate)
+deactivate sprintList
+sprintList -> projectTeam: res2 = validateProjectTeam(startDate, sprintDuration)
+deactivate projectTeam
+alt res1 = true & res2 = true
+sprintList -> sprintList: sprint = getSprint(sprintID)
+loop for each known sprint in sprintList
+sprintList -> listSprint: get (i)
+listSprint --> sprintList: sprint
+sprintList -> sprint: hasSprintID(sprintID)
+return true
+end
+deactivate sprintList
+sprintList -> sprint: setStartDate()
+sprint --> sprintList: true
+end
+sprintList --> Ctrl: true
+Ctrl --> UI: true
+UI --> ProjectManager: Confirmation Information Success
+@enduml

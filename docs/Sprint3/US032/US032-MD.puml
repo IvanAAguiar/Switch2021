@@ -1,0 +1,59 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+skinparam classAttributeIconSize 0
+hide circle
+
+title Domain Model excerpt - US032 - As SM/Team Member, I want to create task outside the scope of a user story
+
+together {
+class Company{
+}
+class TaskType{
+- name
+}
+class TaskStatus{
+- description
+}
+class Project{
+}
+}
+together {
+class ProjectTeam{
+}
+class Sprint{
+-sprint_ID
+-startDate
+-endDate
+}
+}
+together {
+class Resource{
+-startDate
+-endDate
+}
+class Task{
+-name
+-description
+-effortEstimate
+}
+}
+class SystemUser{
+-name
+}
+
+
+Company "1" --> "*" TaskType: contains
+Company "1" --> "*" TaskStatus: contains
+Company "1" -left-> "*" Project: contains
+TaskType "1" <-- "*" Task: contains
+TaskStatus "1" <-- "*" Task: contains
+Task "*" --> "*" Task: has precedences
+Project "1" <-- "*" Sprint: belong to
+Project "1" <-right- "1" ProjectTeam: belong to
+Sprint "1" <-right- "*" Task: belong to
+ProjectTeam "1" <-- "*" Resource: belong to
+Task "*" <-- "1" Resource: is responsible
+Resource "*" <-right- "1" SystemUser: is assign
+
+@enduml

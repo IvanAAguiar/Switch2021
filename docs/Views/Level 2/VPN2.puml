@@ -1,0 +1,21 @@
+@startuml
+
+'autonumber
+
+title Process View Level 2
+
+actor " UI " as ui
+participant "FrontEnd" as fe
+participant "Backend" as be
+participant "DataBase" as db
+
+
+ui -> fe: Find All Projects
+fe -> be: Find All Projects
+be -> db: Find All Projects
+'request from G5 group
+[o-> be: Get All Projects
+
+
+
+@enduml

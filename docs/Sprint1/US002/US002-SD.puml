@@ -1,0 +1,54 @@
+@startuml
+
+title US002 - As Non-Registered User, I want to activate a just registered user account.
+
+autoactivate on
+autonumber
+
+participant ": ActivateRegisterUserRoute" as UI
+participant ": UserController" as Ctrl
+participant ": UserService" as Serv
+participant ": IUserRepo" as Repo
+participant ": UserJpaAssembler" as Assembler
+participant "foundUserJpa: UserJpa" as FoundUser
+participant "userJpa: UserJpa" as UserJPA
+participant ": User" as user
+participant ":UserJpaRepository" as Driver
+participant "savedUserJpa: UserJpa" as SavedJpa
+participant "savedUser: User" as SavedUser
+participant ": UserMapper" as mapper
+participant "outputDTO: OutputUserDTO" as OutDTO
+participant "response: ResponseEntity" as json
+
+[o-> UI:  PATCH /users/{ID}/activate
+UI -> Ctrl: activateUser(idDTO)
+note over UI: Change from json to dto hidden to simplify diagram
+Ctrl -> Serv: activateUser(user)
+note over Serv: The userId creation was hidden to simplify the diagram
+Serv -> Repo: findByUserId(userID)
+Repo --> FoundUser**: create()
+Repo -> Assembler: toDomain(foundUserJpa)
+return user
+return user
+Serv -> user: activateStatus()
+return true
+Serv -> Repo: save(user)
+Repo --> UserJPA**: create()
+Repo -> Driver: saveAndFlush(userJpa)
+Driver --> SavedJpa**: create()
+return savedJpaUser
+Repo -> Assembler: toDomain(savedUserJpa)
+Assembler --> SavedUser**: create()
+return savedUser
+return savedUser
+Serv -> mapper: toDto(savedUser)
+mapper --> OutDTO**: create()
+return OutDTO
+return OutDTO
+Ctrl --> json**: create()
+return response
+return Shows User activated
+
+
+
+@enduml

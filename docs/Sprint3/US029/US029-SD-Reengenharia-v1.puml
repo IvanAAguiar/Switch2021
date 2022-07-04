@@ -1,0 +1,48 @@
+@startuml
+
+title US029 - As Project Manager, I want to start a sprint.
+
+autoactivate on
+'autonumber
+
+actor "Project Manager" as projectManager
+participant ": StartSprintRoute" as UI
+participant ": StartSprintController" as Ctrl
+participant ": StartSprintService" as startSprintService
+participant "dto : SprintDTO" as sprintDTO
+participant " : Project" as project
+participant " : SprintDomainService" as sprintDomainService
+participant " : SprintStore" as sprintStore
+participant " : ResourceStore" as resourceStore
+
+
+activate projectManager
+
+
+projectManager -> UI: Asks to start a Sprint
+UI --> Ctrl: startSprint(sprintDTO)
+Ctrl -> startSprintService: startSprint(sprintDTO)
+startSprintService -> project: getProjectTeam()
+project --> startSprintService: projectTeam
+startSprintService -> project: getSprintDuration()
+project --> startSprintService: sprintDuration
+startSprintService -> sprintDomainService: startSprint(dto.projectID, dto.sprintID, dto.startDate, \n projectTeam, sprintDuration)
+sprintDomainService -> sprintStore: findAllSprintByProjectID (projectID)
+sprintStore --> sprintDomainService: Sprint's List
+sprintDomainService -> sprintStore: findSprintByID (sprintID)
+sprintStore --> sprintDomainService: Sprint
+sprintDomainService -> sprintStore: validateStartDate(startDate)
+sprintStore --> sprintDomainService: true
+sprintDomainService -> resourceStore: validateProjectTeam(startDate, sprintDuration)
+resourceStore -> resourceStore: getProductOwnerByStartDate(startDate, sprintDuration)
+deactivate
+resourceStore -> resourceStore: getScrumMasterByStartDate(startDate, sprintDuration)
+deactivate
+resourceStore --> sprintDomainService: true
+sprintDomainService -> sprintStore: setStartDate(startDate)
+sprintStore --> sprintDomainService: true
+sprintDomainService --> startSprintService: true
+startSprintService --> Ctrl: true
+Ctrl --> UI: true
+UI --> projectManager: Informs Operation Success
+@enduml

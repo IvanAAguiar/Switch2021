@@ -1,0 +1,160 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+skinparam classAttributeIconSize 0
+hide circle
+
+title US031 - As Team Member, I want to create a task in a user story
+
+class CreateUsTaskUI{}
+
+class TaskUSController{
++getTaskTypes()
++createUsTask(createUsTaskDTO)
+}
+
+class Company{
++getTaskTypeStore()
++getProjectStore()
++createUsTask(createUsTaskDTO)
+}
+
+class TaskTypeStore{
+-List<TaskType> taskTypeList
++createTaskTypesNames()
+}
+
+class TaskType{
+-String name
++getName()
+}
+
+class ProjectStore{
+-List<Project> projectList
++getProjectByCode(String code)
+}
+
+class Project{
+-List<Sprint> sprintList
++getSprints()
++getProjectTeam()
+}
+
+class SprintList{
+-Sprint
++getSprint(sprintID)
+}
+
+class Sprint{
+-int sprint_ID
+-LocalDate startDate
+-LocalDate endDate
+-TaskList sprintTaskList
++getBacklog()
+}
+
+class SprintBacklog{
++getUSList()
+}
+
+class UserStoryList {
++getUs(usId)
+}
+
+class UserStory{
++getUsTaskList()
+}
+
+class USTaskList{
+-String name
+-String description
+-int effortEstimate
+-TaskType taskType
+-List<Task> tasksPrecedence
++getTasksNames()
++createUsTask(createUsTaskDTO)
+}
+
+
+class ProjectTeam{
+-List<Resource> projectTeam
+getCurrentResourcesNames()
+}
+
+class Resource{
+-String name
+-LocalDate startDate
+-LocalDate endDate
++isCurrent()
++getName()
+}
+
+class TaskMapper{
++toModel(createUsTaskDTO)
+}
+
+class TaskDTO{
+-String name
+-String description
+-int effortEstimate
+-String taskTypeName
+-String responsibleEmail
++getName()
++getDescription()
++getEffortEstimate()
++getTaskTypeName()
++getResponsible()
+}
+
+CreateUsTaskUI ..> TaskUSController
+
+
+TaskUSController ..> Company
+TaskUSController ..> TaskTypeStore
+TaskUSController ..> TaskType
+TaskUSController ..> ProjectStore
+TaskUSController ..> Project
+TaskUSController ..> SprintList
+TaskUSController ..> Sprint
+TaskUSController ..> SprintBacklog
+TaskUSController ..> UserStoryList
+TaskUSController ..> UserStory
+TaskUSController ..> USTaskList
+TaskUSController ..> ProjectTeam
+TaskUSController ..> Resource
+TaskUSController ..> TaskMapper
+
+
+
+Company "1" *-- "1" TaskTypeStore
+Company "1" *-- "1" ProjectStore
+
+
+TaskTypeStore "1" *-- "*" TaskType
+
+TaskType "*" --o "1" Task
+
+ProjectStore "1" *-- "*" Project
+
+Project "1" *-- "1" SprintList
+Project "1" *-- "1" ProjectTeam
+
+SprintList "1" *-- "*" Sprint
+
+Sprint "1" *-- "1" SprintBacklog
+
+SprintBacklog "1" *-- "1" UserStoryList
+
+UserStoryList "1" *-- "*" UserStory
+
+UserStory "1" *-- "1" TaskList
+
+TaskList "1" *-- "*" Task
+
+ProjectTeam "1" *-- "*" Resource
+
+USTaskList "1" *-- "1" TaskMapper
+
+TaskMapper *-- TaskDTO
+
+@enduml

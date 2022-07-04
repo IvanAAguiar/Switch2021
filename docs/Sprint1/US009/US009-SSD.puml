@@ -1,0 +1,18 @@
+@startuml
+'https://plantuml.com/sequence-diagramtitle US022 - As Project Manager, I want to create a sprint.
+
+title US009 - As Product Owner, I want to create a user story and add it to the Product Backlog
+
+autoactivate on
+autonumber
+actor "Product Owner" as ProjectManager
+participant ":System" as System
+
+activate ProjectManager
+
+ProjectManager -> System: Starts to create a User Story
+'System -> System: createUserStory
+'deactivate
+System --> ProjectManager: Informs Operation Success
+
+@enduml

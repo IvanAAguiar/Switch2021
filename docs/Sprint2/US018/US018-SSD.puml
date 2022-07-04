@@ -1,0 +1,16 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title US018 - As PO/SM/TeamMember, I want to consult the Product Backlog, i. e. to get the list of user stories sorted by priority
+
+autoactivate on
+autonumber
+
+actor "PO/SM/TeamMember" as User
+participant ":System" as System
+
+activate User
+
+User -> System:  Get access to project product backlog
+User <-- System: Shows list of User Stories sorted
+@enduml

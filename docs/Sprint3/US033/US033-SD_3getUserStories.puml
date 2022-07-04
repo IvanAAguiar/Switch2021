@@ -1,0 +1,52 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title US033 - As SM/Team Member, I want to register work done on a Task (PARTIAL)
+
+autoactivate on
+autonumber
+
+participant ": RegisterWorkToTaskController" as Ctrl
+participant ": Company" as company
+participant ": RegisterWorkToTaskMapper" as mapper
+participant "sprintIdDTO: SprintIdDTO" as sprintIdDTO
+participant "sprintList : SprintList" as sprintList
+participant "sprint : Sprint" as sprint
+participant "userStoryList : Sprintbacklog" as sprintBacklog
+participant "userStoryIdDTOList: List<UserStoryIdDTO>" as userStoryIdDTOList
+participant "userStoryIdDTO: UserStoryIdDTO" as userStoryIdDTO
+
+[o->Ctrl: getUserStories(sprintIdDTO)
+Ctrl->mapper: sprintIdDTOToSprintId(sprintIdDTO)
+mapper->sprintIdDTO: getId()
+sprintIdDTO-->mapper: sprintId
+mapper-->Ctrl: sprintId
+Ctrl->sprintList: getSprintById(sprintId)
+loop for each sprint in sprintList
+sprintList->sprint: hasId(sprintId)
+sprint-->sprintList: true
+end
+sprintList-->Ctrl: sprint
+
+Ctrl->sprint: getSprintBacklog()
+sprint-->Ctrl: sprintBacklog
+Ctrl->sprintBacklog: getUserStoryList()
+sprintBacklog-->Ctrl: userStoryList
+
+Ctrl->mapper: userStoryListToUserStoryListDTO(userStoryList)
+mapper->userStoryIdDTOList **: create()
+loop for each userStory in userStoryList
+mapper->sprintBacklog: get(i)
+sprintBacklog-->mapper: userStory
+mapper->mapper: userStoryIdDTO = userStoryIdToUserStoryIdDTO(userStory)
+mapper->mapper:userStoryIdDTO = userStory.getId()
+deactivate mapper
+mapper->userStoryIdDTO**: create(userStoryIdDTO)
+deactivate mapper
+mapper->userStoryIdDTOList: add(userStoryIdDTO)
+userStoryIdDTOList-->mapper: true
+end
+mapper-->Ctrl: userStoryIdDTOList
+[<--Ctrl: userStoryIdDTOList
+
+@enduml

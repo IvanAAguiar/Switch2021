@@ -1,0 +1,124 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+skinparam classAttributeIconSize 0
+
+title US028 - As Director, I want to get a list of all human resources in a project
+
+package "System" <<Rectangle>> {
+
+package "Infrastructure" <<Rectangle>> #lightblue  {
+class "ShowCurrentProjectTeamRoute" as route << Component >>
+}
+
+package "Interface Adapters" <<Rectangle>> #lightgreen {
+package "Controllers" <<rectangle>>{
+class "ResourcesController" as ctrl << Component >> {
++showCurrentProjectTeam()
+}
+}
+package "Repositories" <<rectangle>>{
+class "ResourceStore" as rStore <<Repository>> {
+-resources : List<Resource>
++findByProject()
+}
+class "ProjectStore" as pStore <<Repository>> {
+-projects : List<Project>
++existById()
+}
+}
+}
+
+package "Application Service" <<Rectangle>> #lightpink{
+package "App Services" <<rectangle>>{
+class "ShowCurrentProjectTeamService" as srv <<Service>> {
++showCurrentProjectTeam()
+}
+}
+package "IRepositories" <<rectangle>>{
+interface "IProjectRepository" as projRepo{
+existById()
+}
+interface "IResourceRepository" as resRepo{
+findByProject()
+}
+}
+}
+
+package "Domain" <<Rectangle>> #burlywood{
+
+package "Aggregates" <<Rectangle>>{
+package "Project" <<Rectangle>>{
+entity "Project" as proj << Root >>
+}
+
+package "Resource" <<Rectangle>>{
+entity "Resource" as res << Root >>{
++isActiveToThisDate()
+}
+}
+
+package "SystemUser" <<Rectangle>>{
+entity "SystemUser" as user << Root >>
+}
+}
+
+package "Value Objects" <<Rectangle>>{
+class "SystemUserId" as userId << Value Object >>
+class "ResourceId" as resId << Value Object >>
+class "ProjectId" as pId << Value Object >>
+}
+
+package "Services" <<Rectangle>>{
+class "ManageResourcesService" as dsrv <<Service>>{
++currentResourcesByDate()
+}
+}
+}
+
+package "DTO" <<Rectangle>>{
+class "ResourceMapper" as map << Component >>{
++model2Dto()
+}
+class "IdDto" as dataDto
+class "DateDto" as dateDto
+class "OutputResourceDto" as dto
+}
+
+class "ResponseEntity" as json
+
+}
+
+
+
+res "1"*-d-"1" resId
+proj "1"*-d-"1" pId
+user "1"*-d-"1" userId
+resId "1" o- "1" pId
+resId "1" o- "1" userId
+
+projRepo <|.u. pStore
+resRepo <|.u. rStore
+
+rStore "1"*--"*" res
+pStore "1"*--"*" proj
+
+srv .u.> projRepo
+srv .u.> resRepo
+srv ...> dsrv
+srv .u.> map
+
+dsrv ..> res
+
+ctrl .r.> dataDto
+ctrl .r.> dateDto
+srv .r.> dataDto
+srv .r.> dateDto
+map .l.> dto
+ctrl .l.> json
+
+ctrl .d.> srv
+
+route .d.> ctrl
+
+@enduml

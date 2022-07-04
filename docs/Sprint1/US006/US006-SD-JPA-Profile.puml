@@ -1,0 +1,24 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autoactivate on
+autonumber
+
+title US006 - As Administrator, I want to update profiles assigned to a user account
+
+
+participant ": IUserProfileRepo" as Repository
+participant ": UserProfileRepository" as repo
+participant "UserJpaRepository" as jpaRepo
+
+
+
+[o->Repository: existsByUserProfileId(profileID)
+
+Repository -> repo : existsByUserProfileId(profileID)
+repo -> jpaRepo : existsById(userProfileID)
+jpaRepo--> repo: true
+repo--> Repository : true
+[<--Repository: true
+
+@enduml

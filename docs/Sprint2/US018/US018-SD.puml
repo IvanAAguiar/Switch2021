@@ -1,0 +1,52 @@
+@startuml
+title "US018 - As PO/SM/TeamMember, I want to consult the Product Backlog, i. e. to get the list of user stories sorted by priority"
+
+autoactivate on
+autonumber
+
+participant ": UserStoryRoute" as UI
+participant ": UserStoryController" as Ctrl
+participant ": UserStoryService" as Service
+participant "exception: \nException" as exc
+participant ": iProjectRepo" as ProjectRepo
+participant ": IUserStoryRepo" as Repo
+participant ": UserStoryJpaRepository" as Driver
+participant ": UserStoryAssembler" as Assembler
+participant "userStories: List" as UserStories
+participant "us: UserStory" as UserStory
+participant "productBacklog:\n List" as Backlog
+participant ": UserStoryMapper" as mapper
+participant "productBacklogResponse: \n ResponseEntity" as json
+
+[o-> UI
+UI -> Ctrl: consultProductBacklog(projectId)
+Ctrl -> Service: findProduckBacklog(projectId)
+opt if the project does not exist
+    Service --> exc**: create()
+end
+Service -> Repo: findProductBacklog(projectId)
+Repo -> Driver: findAll()
+return userStoriesJpa
+Repo -> Assembler: toDomain(userStoriesJpa)
+    loop
+        Assembler --> UserStories**: create()
+    end
+return userStories
+Repo --> Backlog**: create()
+    loop
+    activate UserStories
+        alt success case
+            UserStories -> UserStory:  hasProjectId(projectId)
+            return true
+        end
+        UserStories -> Backlog: add(us)
+        deactivate Backlog
+        deactivate UserStories
+    end
+return productBacklog
+return productBacklogDto
+Ctrl --> json**: create()
+return response
+return response
+
+@enduml

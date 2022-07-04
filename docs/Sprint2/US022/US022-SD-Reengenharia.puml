@@ -1,0 +1,53 @@
+@startuml
+
+title US022 - As Project Manager, I want to create a sprint.
+
+autoactivate on
+autonumber
+
+participant ": CreateSprintRoute" as UI
+participant ": CreateSprintController" as Ctrl
+participant ": CreateSprintService" as createSprintService
+participant ": ISprintFactory" as sprintFactory
+'participant " newSprintDTO : NewSprintDTO" as sprintDTO
+'participant " : VOFactoryInterface<SprintID>" as voSprint
+'participant " sprintID : SprintID" as sprintID
+participant " newSprint : Sprint" as sprint
+participant ": ISprintStore" as sprintStore
+participant ": SprintMapper" as sprintMapper
+participant "outPutSprintDTO: OutPutSprintDTO" as outPutSprintDTO
+
+
+[o-> UI: POST/sprints(json)
+UI -> Ctrl: createSprint(json)
+note right
+Change from json to dto hidden to simplify diagram
+end note
+Ctrl -> createSprintService: createSprint(newSprintDTO)
+createSprintService -> sprintFactory: createSprint(newSprintDTO)
+'sprintFactory -> sprintDTO: projectID = getProjectID()
+'deactivate
+'sprintFactory -> sprintDTO: name = getName()
+'deactivate
+'sprintFactory -> voSprint: createSprint(projectID, name)
+note over sprintFactory : The creation of the id are hidden to simplify the diagram.
+'voSprint -> sprintID**: create()
+'voSprint --> sprintFactory: sprintID
+sprintFactory -> sprint**: create(sprintID)
+sprintFactory --> createSprintService: newSprint
+createSprintService -> sprintStore: save(newSprint)
+'sprintStore -> sprintStore: existsBySprintID(sprintID)
+'deactivate
+'sprintStore -> sprintStore: add(newSprint)
+'deactivate
+sprintStore --> createSprintService: true
+createSprintService -> sprintMapper: toDTO(newsprint)
+sprintMapper -> outPutSprintDTO**: create()
+sprintMapper --> createSprintService: outPutSprintDTO
+createSprintService --> Ctrl: outPutSprintDTO
+Ctrl --> UI: outputJson
+note right
+Change from json to dto hidden to simplify diagram
+end note
+[<--UI : Informs Operation Success
+@enduml

@@ -1,0 +1,58 @@
+@startuml
+
+title "US006 - As Administrator, I want to update profiles assigned to a user account."
+
+autoactivate on
+autonumber
+
+
+participant ": UserRoute" as router
+participant ": UserController" as Controller
+participant ": UserService" as service
+participant ": IUserRepo" as repository
+participant ": IUserProfileRepo" as profileRepo
+participant "user : User" as user
+participant ": UserMapper" as mapper
+participant " outputUserDTO : OutputUserDTO" as outputUserDTO
+participant "response : ResponseEntity" as entity
+
+
+
+[o-> router: PATCH/{id}/assignProfile(json)
+router -> Controller: assignProfile(profileDTO)
+
+note right router: Change from json to dto hidden to simplify diagram
+
+Controller->service: assignUserProfile(profileDTO)
+
+note over service : The creation of the userID are hidden to simplify the diagram.
+
+service -> repository : findByUserId(userID)
+ref over repository: [[US006-SD-JPA-User.puml]]
+return user
+
+note over service : The creation of the profileID are hidden to simplify the diagram.
+
+service -> profileRepo: existsByUserProfileId(profileID)
+ref over repository: [[US006-SD-JPA-Profile.puml]]
+return true
+
+service-> user: hasProfile(profileID)
+user-->service: false
+service-> user: toAssignProfile(profileID)
+deactivate
+
+service -> repository: save(user)
+ref over repository: [[US006-SD-JPA-Save.puml]]
+
+repository-->service: updatedUser
+service->mapper : toDto(updatedUser)
+mapper->outputUserDTO**: create
+return outputUserDTO
+service-->Controller: outputUserDTO
+Controller->entity**:create(outputUserDTO)
+
+
+Controller -->router: response
+[<--router : Inform operation success
+@enduml

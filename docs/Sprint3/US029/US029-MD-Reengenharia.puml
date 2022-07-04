@@ -1,0 +1,23 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+skinparam classAttributeIconSize 0
+'hide circle
+
+title Domain Model excerpt - US022 - As Project Manager, I Want to create a Sprint.
+
+package Sprint <<Rectangle>>{
+class Sprint{
+}
+}
+
+
+package SprintID <<Rectangle>>{
+class SprintID{
+}
+}
+
+Sprint -down-> SprintID: has
+
+
+@enduml

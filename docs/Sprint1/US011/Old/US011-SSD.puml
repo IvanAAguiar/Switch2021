@@ -1,0 +1,17 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title US010 - As Authenticated User, i want to change his/her password
+
+autoactivate on
+autonumber
+
+actor "Authenticated User" as user
+participant ":System" as System
+
+activate user
+
+user -> System: Start changing Password
+System --> user: Informs Operation Success
+
+@enduml

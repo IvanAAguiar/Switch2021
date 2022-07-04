@@ -1,0 +1,200 @@
+@startuml
+
+'hide circle
+skinparam classAttributeIconSize 0
+
+title "US006 - As Administrator, I want to update profiles assigned to a user account."
+
+skinparam classAttributeIconSize 0
+
+'''''''''''''''''''''''''''''''
+package "Infrastructure" <<Rectangle>> #lightblue  {
+package "Persistence"{
+interface "UserProfileJpaRepository" as iUserProfileRepositoryJPA << Interface >>
+}
+
+package "Route"{
+    class "UserRoute" as route << Component >>
+    }
+
+package "Persistence" {
+    interface "UserJpaRepository" as iUserRepositoryJPA << Interface >>
+
+    }
+
+}
+'''''''''''''''''''''''''''''''
+package "Interface Adapter" <<Rectangle>> #lightgreen {
+
+  package "Controllers" <<Folder>>{
+    class "UserController" as ctrl << Component >> {
+    + assignProfile (profileDTO)
+    }
+  }
+  package "Repositories" <<Folder>>{
+    class "UserRepository" as SUrepo << Repository >> {
+    + save(newUser)
+    + findByUserId(userID)
+    }
+  }
+
+   package "Repositories" <<Folder>>{
+      class "UserProfileRepository" as SUrepo2 << Repository >> {
+      + existsByUserProfileId(profileID)
+      }
+    }
+}
+'''''''''''''''''''''''''''''''
+'class "ResponseEntity" as json <<Component>>
+'''''''''''''''''''''''''''''''
+package "Application Service API/Use Case Service" <<Rectangle>> #lightpink{
+  package "App Service" <<Folder>>{
+    class "UserService" as service << Component >> {
+    +assignUserProfile(profileDTO)
+    }
+  }
+  package "Repositories Interface" <<Folder>>{
+    interface "IUserRepo" as ISUrepo << Interface >>{
+    + save(user)
+    + findByUserId(userID)
+    }
+
+    interface "IUserProfileRepo" as ISUrepo2 << Interface >>{
+        + existsByUserProfileId(profileID)
+        }
+  }
+}
+'''''''''''''''''''''''''''''''
+package "DTO" <<Rectangle>> {
+  package "UpdateUserProfileDTO" <<Folder>>{
+    class "UpdateUserProfileDTO" as infoDto << Component >> {
+    - profileId : String
+    }
+  }
+
+  package "OutputUserDTO" <<Folder>>{
+    class "OutputUserDTO" as outDto << Component >> {
+    - userName : String
+    - email : String
+    - function : String
+    - photo : String
+    - isActive : String
+    - assignedIdProfiles : String []
+    }
+  }
+
+  package "UserMapper" <<Folder>>{
+    class "UserMapper" as mapper << Component >> {
+    + toDto(updatedUser)
+    }
+  }
+}
+
+package "Data Model" <<Rectangle>>{
+package "Assembler" as generalAssember {
+    class "UserJpaAssembler" as assembler <<Component>>{
+    +toData(user)
+    +toDomain(foundUserJpa)
+    +toDomain(updatedUserJpa)
+    }
+    }
+package "JPA" as generalJPA {
+    class "UserJPA" as jpa << Component >> {
+    - email : "UserID"
+    - userName : String
+    - function : String
+    - photo : String
+    - password : String
+    - isActive : String
+    - assignedIdProfiles : List<UserProfileID>
+    - requests : List<Resquest>
+    }
+    }
+}
+'''''''''''''''''''''''''''''''
+package "Domain" <<Rectangle>> #burlywood{
+  package "UserAggregate" as SUAggregate <<Folder>>{
+    class "User" as SU << Root >> {
+    - userName : Name
+    - photo : Photo
+    - encryptedPassword : Description
+    - function : Function
+    - isActive : boolean
+    - requestedProfiles : List<Request>
+    }
+  }
+
+  package "Factory" as factory <<Folder>>{
+    class "UserIDFactory" as SUFact << Factory >> {
+    +createUserID(id)
+    }
+     class "UserProfileIDFactory" as SUFact2 << Factory >> {
+        +createUserProfileID(profileID)
+        }
+  }
+  package "Factory Interface" as factoryInterface <<Folder>>{
+    interface "IUserIDFactory" as IUSerFactory <<Factory Interface>> {
+   +createUserID(id)
+    }
+    interface "IUserProfileIDFactory" as IUSerFactory2 <<Factory Interface>> {
+    +createUserProfileID(profileID)
+        }
+  }
+
+  package "Value Object" as valueObject <<Folder>>{
+    class "UserID" as SUID << Value Object >> {
+    -email : Email
+    +SystemUserID(email)
+    }
+    class "UserProfileID" as UPID << Value Object >> {
+    -profileName : Description
+    +UserProfileID(profileName)
+    }
+  }
+}
+'''''''''''''''''''''''''''''''
+Class SUrepo implements ISUrepo
+Class SUFact implements IUSerFactory
+Class SUFact2 implements IUSerFactory2
+Class SUrepo2 implements ISUrepo2
+
+
+route..d->ctrl
+route--[hidden]d->SUrepo
+SUrepo..left>iUserRepositoryJPA
+SUrepo2..right>iUserProfileRepositoryJPA
+
+ctrl-d[hidden]->ISUrepo
+ctrl-d[hidden]->IUSerFactory
+ctrl..d->service
+ctrl-d[hidden]->IUSerFactory
+ctrl..>outDto
+
+'SUrepo "1"*-"*" SU
+SUrepo-d[hidden]->ISUrepo
+
+service..d>IUSerFactory : uses
+service..d>IUSerFactory2 : uses
+service..u>ISUrepo: uses
+service..u>ISUrepo2: uses
+service..r>mapper : uses
+service..r>infoDto : uses
+mapper..d>outDto : uses
+mapper..u[hidden]>infoDto
+SUFact..r>SU : uses
+SUFact2..left>SU : uses
+SUFact2..d>UPID : uses
+SUFact..d>SUID : uses
+
+SU "1"-d>"1"SUID: is identified by
+SU "*"-d>"1..*"UPID: is assigned
+factory-r[hidden]>SUAggregate
+factory-l[hidden]>valueObject
+
+SUrepo .right.> jpa
+SUrepo .right.> assembler
+
+
+
+
+@enduml

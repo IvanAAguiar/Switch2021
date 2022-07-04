@@ -1,0 +1,23 @@
+@startuml
+left to right direction
+'hide circle
+skinparam classAttributeIconSize 0
+
+
+title Domain Model
+
+
+'UserStory Aggregate:--------------------------------------------------
+Entity UserStory #Gold{
+- userStoryID
+- priority
+- description
+- timeEstimate
+- usStatus
+- parentUserStory
+- usStartDate
+- usEndDate
+- usRefined
+}
+
+@enduml

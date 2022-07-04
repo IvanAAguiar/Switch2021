@@ -1,0 +1,156 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+hide circle
+skinparam classAttributeIconSize 0
+
+title US033 - As SM/Team Member, I want to register work done on a Task
+
+package "UI"{
+class RegisterWorkToTaskUI {
+}
+}
+package "Controllers"{
+class RegisterWorkToTaskController {
++getTasks(userStorySprintProjectDTO) : List<TaskIdNameDTO>
++getTask(idTask) : TaskIdNameDTO
++createTaskEffort(taskEffortDTO) : boolean
+}
+}
+package "Domain"{
+class Company {
++getProjectStore() : ProjectStore
+}
+
+class UserStorySprintProjectDTO {
+-code : String
+-idSprint : int
+-idUserStory : int
+}
+
+class TaskEffortDTO {
+-effortHours : int
+-effortMinutes : int
+-effortDate : LocalDate
+-comment : String
+-attachment : String
+}
+
+class TaskIdNameDTO {
+-taskId : int
+-taskName : String
++TaskIdNameDTO(taskId, taskName)
+}
+
+class RegisterWorkToTaskMapper {
++toDTO(task) : TaskIdNameDTO
++toDtoList(taskList) : List<TaskIdNameDTO>
+}
+
+class ProjectStore {
++getProjectByCode(code) : Project
+}
+
+class Project {
+-code : String
++hasCode(code) : boolean
++getSprints() : SprintList
+}
+
+class ProjectTeam {
+}
+
+class Resource {
+}
+
+class SprintList {
++getSprint(idSprint) : Sprint
+}
+
+class Sprint {
+-idSprint : int
++hasSprintID(idSprint) : boolean
++getSprintBacklog() : SprintBacklog
+}
+
+class SprintBacklog {
++getUserStory(idUserStory) : UserStory
+}
+
+class UserStory {
+-idUserStory : int
+-timeEstimate : double
+-workDone : double
++hasId(idUserStory) : boolean
++getTasks() : TaskList
++updateWorkDone(task) : boolean
+}
+
+class TaskList {
++getTaskById(idTask) : Task
+}
+
+class Task {
+-idTask : int
+-effortEstimate : double
+-effortRemaining : double
+-startDate : LocalDate
+-endDate : LocalDate
+-hoursSpent : double
+-executionPercentage : double
++hasId(idTask) : boolean
++createTaskEffort(effortHours, effortMinutes, effortDate, comment, attachment) : TaskEffort
++saveTaskEffort(effort) : boolean
++validateTaskEffort(effort) : boolean
++add(effort) : boolean
++updateHoursSpent(effort) : double
++updateEffortRemaining(effort) : double
++updateExecutionPercentage() : double
+}
+
+class TaskStatus {
+-description : String
+}
+
+class TaskType {
+-name : String
+}
+
+class TaskEffort {
+-effortHours : int
+-effortMinutes : int
+-effortDate : LocalDate
+-comment : String
+-attachment : String
++TaskEffort(effortHours, effortMinutes, effortDate, comment, attachment)
+}
+}
+RegisterWorkToTaskUI ..> RegisterWorkToTaskController
+
+RegisterWorkToTaskController ..> Company : uses
+RegisterWorkToTaskController ..> UserStorySprintProjectDTO : uses
+RegisterWorkToTaskController ..> RegisterWorkToTaskMapper : uses
+RegisterWorkToTaskController ..> TaskEffortDTO : uses
+RegisterWorkToTaskMapper ..> TaskIdNameDTO
+RegisterWorkToTaskController ..> ProjectStore : uses
+RegisterWorkToTaskController ..> Project : uses
+RegisterWorkToTaskController ..> Sprint : uses
+RegisterWorkToTaskController ..> UserStory : uses
+RegisterWorkToTaskController ..> Task : uses
+
+Company "1" -> "1" ProjectStore: knows a
+ProjectStore "1" *-- "0..*" Project: a list of
+Project "1" *-- "1" ProjectTeam : allocates
+ProjectTeam "1" *-- "0..*" Resource : a list of
+Resource "1" <- "0..*" Task : under responsibility of
+Project "1" *-- "1" SprintList : is carried out in
+SprintList "1" *-- "0..*" Sprint :a list of
+Sprint "1" -> "1" SprintBacklog: origins
+SprintBacklog "0..*" o-- "0..*" UserStory: contains
+UserStory "1" o-- "1" TaskList: contains
+Sprint "1" o-- "1" TaskList: contains
+TaskList "1" *-- "1..*" Task : a list of
+Task "*" -> "1" TaskStatus : has
+Task "*" -> "1" TaskType : is classified by
+Task "1" *-- "0..*" TaskEffort: is updated by
+@enduml

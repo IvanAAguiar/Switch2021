@@ -1,0 +1,50 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title US024 - As Administrator, I want to get a list all user accounts and their status
+
+autoactivate on
+autonumber
+
+
+participant ":GetAllUsersAndTheirStatusRoute" as route
+participant ":UserController" as ctrl
+participant ":GetAllUsersAndTheirStatusService" as srv
+participant ":IRepositorySystemUser" as repo
+participant "users :List<SystemUser>" as list
+participant "user :SystemUser" as user
+participant ":UsersWithStatusMapper" as map
+participant "dataDto :DataDto" as dataDto
+participant "usersDto :List<UserWithStatusDto>" as dtoList
+participant ":UserWithStatusDto" as dto
+participant "usersJson :List<UserWithStatusJson>" as jsonList
+participant ":UserWithStatusJson" as json
+
+activate actor
+autoactivate on
+
+[o-> route : GET /users?showStatus=true
+route -> ctrl : getAllUsersWithStatus()
+ctrl -> map: data2Dto(data)
+map --> dataDto**: create()
+note over map : The sequence of this method are hidden to simplify the diagram.
+map --> ctrl: dataDto
+ctrl -> srv : getAllUsersWithStatus(dataDto)
+srv -> repo: findAll()
+repo --> list** : create()
+note over repo : The sequence of this method are hidden to simplify the diagram.
+repo --> srv : users
+srv -> map : model2Dto(users)
+map --> dtoList** : create()
+note over map : The sequence of this method are hidden to simplify the diagram.
+map --> srv : usersDto
+srv --> ctrl : usersDto
+ctrl -> map : dto2Json(usersDto)
+map --> jsonList**
+note over map : The sequence of this method are hidden to simplify the diagram.
+map --> ctrl : usersJson
+ctrl --> route : usersJson
+route --> actor : Show all users and their status
+
+
+@enduml

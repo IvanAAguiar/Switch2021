@@ -1,0 +1,16 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title US003 - As Visitor, I want to send a request to the administrator to assign him/her a given profile
+
+autoactivate on
+autonumber
+
+actor "Visitor" as visitor
+participant ":System" as System
+
+activate visitor
+
+visitor -> System: Starts to send a request ti the administrator to assign a given profile
+visitor <-- System: Informs operation success
+@enduml

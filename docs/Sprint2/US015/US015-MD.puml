@@ -1,0 +1,30 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+
+'Layout Format---------------------------------------------
+left to right direction
+hide circle
+skinparam classAttributeIconSize 0
+
+
+title Domain Model
+
+
+'Project Aggregate:--------------------------------------------------
+class Project #Yellow{
+ -projectCode
+        -name
+        -description
+        -businessSector
+        -startDate
+        -numberOfSprints
+        -sprintDuration
+        -budget
+        -endDate
+        -typology
+        -customer
+        -status
+}
+
+@enduml

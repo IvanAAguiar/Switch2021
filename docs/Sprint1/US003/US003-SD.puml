@@ -1,0 +1,66 @@
+@startuml
+
+title US003 - As Visitor, I want to send a request to the administrator to assign him/her a given profile
+
+autoactivate on
+autonumber
+
+participant ": SendProfileRequestRoute" as UI
+participant ": UserController" as Ctrl
+participant ": UserService" as Serv
+participant ": IUserRepo" as Repo
+participant "foundUserJpa: UserJpa" as FoundUser
+participant ": UserJpaAssembler" as Assembler
+participant "user: User" as Optional
+participant ": UserProfileRepository" as ProfileRepo
+participant ": UserProfileJpaRepository" as DriverProfile
+participant "newRequest : Request" as Request
+participant "userJpa: UserJpa" as UserJPA
+participant ":UserJpaRepository" as Driver
+participant "savedUserJpa: UserJpa" as SavedJpa
+participant "savedUser: User" as SavedUser
+participant "response: ResponseEntity" as json
+
+
+
+[o-> UI: PATCH/users/{ID}/requests
+note over UI: Change from json to dto hidden to simplify diagram
+UI -> Ctrl: createAndAddRequest(requestDTO)
+
+    Ctrl -> Serv: requestUserProfile(requestDto)
+    note over Serv: The VO (UserID, UserProfileID) creation was hidden to simplify the diagram
+    Serv -> Repo: findByUserId(userID)
+    Repo --> FoundUser**: create()
+    Repo -> Assembler: toDomain(foundUserJpa)
+    Assembler --> Optional**: create()
+    return user
+    return user
+        Serv -> ProfileRepo: existsByUserProfileId(userProfileID)
+        ProfileRepo -> DriverProfile: existsById(userProfileID)
+        return true
+        return true
+    Serv -> Optional: createProfileRequest(profileId)
+    alt successful case
+        Optional -> Request**: create(profileId)
+        Optional -> Optional: add(newRequest)
+    end
+    deactivate Optional
+    return true
+    Serv -> Repo: save(user)
+    Repo -> Assembler: toDomain(user)
+    Assembler --> UserJPA**: create()
+    Assembler --> Repo: userJpa
+    Repo -> Driver: saveAndFlush(userJpa)
+    Driver --> SavedJpa**: create()
+    return savedJpaUser
+    Repo -> Assembler: toDomain(savedUserJpa)
+    Assembler --> SavedUser**: create()
+    return savedUser
+    return savedUser
+    return true
+
+Ctrl --> json**: create()
+return response
+return response
+
+@enduml

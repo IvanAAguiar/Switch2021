@@ -1,0 +1,17 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title US008- As a Project Manager i want to edit some project information
+
+autoactivate on
+autonumber
+
+actor "Project Manager" as User
+participant ":System" as System
+
+activate User
+
+User -> System: edit a project
+System --> User: Operation success. Show a modified project
+
+@enduml

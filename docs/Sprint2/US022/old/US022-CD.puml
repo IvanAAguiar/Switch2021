@@ -1,0 +1,54 @@
+@startuml
+
+hide circle
+skinparam classAttributeIconSize 0
+
+title US022 - As Project Manager, I want to create a sprint.
+
+class CreateSprintUI {
+}
+
+class CreateSprintController {
++getUser(email)
++updateSystemUser(username, function, photo)
+}
+
+class Company {
++getSystemUserStore()
+}
+
+class SystemUserStore {
++getUserByEmail(email)
+}
+
+
+class SystemUser {
++SystemUser(username, email, photo, password, passwordConfirmation, function, profile)
++isYourEmail(email)
++setAllData(username, function, photo)
++setUsername(username)
++setFunction(function)
++setPhoto(photo)
+}
+
+
+class SystemUserMapper {
++toUserDTO(user)
+-toDTO(user)
++create()
+}
+
+
+CreateSprintUI ..> CreateSprintController
+
+CreateSprintController ..> Company
+CreateSprintController ..> SystemUserStore
+CreateSprintController ..> SystemUser
+CreateSprintController ..> SystemUserMapper
+
+
+Company "1" o-- "1" SystemUserStore: has
+SystemUserStore "1" *-- "0..*" SystemUser: has
+
+
+@enduml

@@ -1,0 +1,89 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+skinparam classAttributeIconSize 0
+hide circle
+
+title US033 - Domain Model
+
+together {
+class Project{
+- code
+- projectName
+- description
+- startDate
+- endDate
+- numberOfSprints
+- sprintDuration
+}
+
+class SprintBacklog{
+}
+class Sprint{
+- idSprint
+- name
+- startDate
+- endDate
+}
+
+class TaskEffort{
+- effortHours
+- effortMinutes
+- effortDate
+- comment
+- attachment
+}
+class Task{
+- idTask
+- name
+- description
+- effortEstimate
+- effortRemaining
+- startDate
+- endDate
+- hourSpent
+- executionPercentage
+}
+class TaskStatus{
+- idTaskStatus
+- description
+}
+
+class UserStory{
+- idUserStory
+- name
+- priority
+- description
+- parentUserStory
+- timeEstimate
+- workDone
+}
+class Company{
+}
+class Resource{
+- startDate
+- endDate
+- costPerHour
+- percentageOfAllocation
+}
+
+Company "1" -- "*"Project : has
+Project "1" -right- "*" Sprint: is divided in
+Project "1..*" -left- "*" Resource: worked by
+Resource "1" -- "*" Task: under responsibility of
+Sprint "1" -right- "1" SprintBacklog: origins
+SprintBacklog "*" -right- "1..*" UserStory: is composed by
+UserStory "1" -- "1..*" Task: contains
+Sprint "1" -- "1..*" Task: contains
+Task "*" -left- "1" TaskStatus: includes
+Task "1" -- "*" TaskEffort: is measured by
+Task "1" -- "*" Task: is preceded by
+
+
+
+
+
+@enduml
+
+
+

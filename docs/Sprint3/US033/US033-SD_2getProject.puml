@@ -1,0 +1,32 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title US033 - As SM/Team Member, I want to register work done on a Task (PARTIAL)
+
+autoactivate on
+autonumber
+
+participant ": RegisterWorkToTaskController" as Ctrl
+participant ": RegisterWorkToTaskMapper" as mapper
+participant "projCodeNameDTO\n: ProjectCodeNameDTO" as projectDTO
+participant "projStore : ProjectStore" as projStore
+participant "proj : Project" as project
+participant "projCodeNameSprintListDTO\n: ProjectCodeNameSprintListDTO" as projectSprintListDTO
+
+[o->Ctrl: getProject(codeDTO)
+Ctrl->mapper:projectCodeDTOToProjectCode(codeDTO)
+mapper->projectDTO:getCode()
+projectDTO-->mapper: code
+mapper-->Ctrl:code
+Ctrl->projStore: getProjectByCode(code)
+loop for each known project
+projStore->project: hasCode(code)
+project-->projStore: true
+end
+projStore-->Ctrl: proj
+Ctrl->mapper:projectToProjectDTO(proj)
+mapper->projectSprintListDTO**: create(proj.getCode(),proj.getProjectName(), proj.getSprintList())
+mapper-->Ctrl: projCodeNameSprintListDTO
+[<--Ctrl: projCodeNameSprintListDTO
+
+@enduml

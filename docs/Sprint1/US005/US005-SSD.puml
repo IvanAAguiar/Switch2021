@@ -1,0 +1,17 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title US005- "As a director i want to create/register a new project"
+
+autoactivate on
+autonumber
+
+actor "Director" as User
+participant ":System" as System
+
+activate User
+
+User -> System: Starts the creation of a new Project
+System --> User: Informs of operation success
+
+@enduml

@@ -1,0 +1,48 @@
+@startuml
+
+title US012 - "As Director, I want to create a new project typology."
+
+autoactivate on
+autonumber
+
+participant ":CreateTypologyRoute" as Router
+participant ":TypologyController" as Controller
+participant ":TypologyService" as Service
+participant ":ITypologyFactory" as TypoFactory
+'participant "typoIDFact: ITypologyIDFactory" as IdFactory
+'participant "descFact:IDescriptionFactory" as DesFactory
+participant "newTypo: \nTypology" as Typology
+'participant "typologyID:TypologyID" as Id
+'participant "description:Description" as Description
+participant ":ITypologyRepo" as Repository
+participant ":TypologyMapper" as Mapper
+participant "outputDto: \nTypologyDTO" as outputDTO
+
+[o-> Router: Post/typologies/(json)
+Router -> Controller: createTypology (inputDto)
+note right
+Change from json to dto hidden to simplify diagram
+end note
+'note over Controller: Service is parameter with @Autowired
+Controller -> Service: createAndSaveTypology\n(inputDto)
+'note over Service: typoFact, repoTypo and mapper are parameters with @Autowired
+Service -> TypoFactory: createTypology(inputDto)
+note over TypoFactory : The creation of the id are hidden to simplify the diagram.
+TypoFactory --> Typology**: create\n(descriptionID)
+return newTypo
+Service -> Repository: save(newTypo)
+ref over Repository: [[US12SD_JPA.puml]]
+return true
+
+Service -> Mapper: modelToDTO(newTypo)
+Mapper --> outputDTO**: create()
+return outputDto
+return outputDto
+return outputJson
+note right
+Change from json to dto hidden to simplify diagram
+end note
+'note over Controller: The Controller uses the Response Entity class to create a response in JSON format using the dto received from Service layer and defining the HTTP status.
+[<--o Router: Shows typology informations
+
+@enduml

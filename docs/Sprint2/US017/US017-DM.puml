@@ -1,0 +1,37 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+title US017 - As Authenticated User, I want to get a list of all projects I'm currently allocated to
+
+class ProjectId <<(V,orange)>> {
+    projectId : ProjectCode
+}
+class SystemUserId <<(V,orange)>> #lightblue {
+    systemUserId : Email
+}
+class ResourceId <<(V,orange)>> #lightpink {
+
+}
+
+package Project <<Rectangle>> {
+    entity Project <<(R,tomato)>>{
+        projectName : Description
+    }
+}
+
+package SystemUser <<Rectangle>> {
+    entity SystemUser <<root>> #lightblue
+}
+
+package Resource <<Rectangle>> {
+    entity Resource <<root>> #lightpink
+}
+
+Project "1"-->"1" ProjectId
+SystemUser "1"-->"1" SystemUserId
+Resource "1"-->"1" ResourceId
+
+ResourceId "1"-r>"1" SystemUserId
+ResourceId "1"-l>"1" ProjectId
+
+@enduml

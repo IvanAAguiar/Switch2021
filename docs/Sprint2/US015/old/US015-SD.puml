@@ -1,0 +1,64 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title US015 - As Director, I want to get a list of all projects
+
+autonumber
+
+actor Director as actor
+participant ": ShowAllProjectsRoute" as Route
+participant ": ProjectController" as Ctrl
+participant ": ShowAllProjectsService" as Srv
+participant ": IRepositoryProject" as store
+participant "projects : List<Project>" as list
+participant "proj : Project" as proj
+participant ": ProjectMapper" as map
+participant "allProjectsDto : List<ProjectDto>" as listDto
+participant "projDto : ProjectDto" as dto
+participant "allProjectsResponse : ResponseEntity" as json
+
+activate actor
+autoactivate on
+
+actor -> Route: GET /projects
+
+Route -> Ctrl: showAllProjects()
+
+Ctrl -> Srv: showAllProjects()
+
+Srv -> store: findAll()
+
+store --> list**: create()
+
+store --> Srv: projects
+
+Srv --> listDto**: create()
+
+loop for all project (proj) in the list (projects)
+
+Srv -> list: get(i) : proj
+deactivate
+
+Srv -> map: model2Dto(proj)
+
+map --> dto**: create()
+
+map --> Srv : projDto
+
+Srv -> listDto: add(projDto): true
+deactivate
+
+end
+
+Srv --> Ctrl: allProjectsDto
+
+Ctrl --> json**: create(allProjectsDto)
+
+note over Ctrl, json : The Controller uses the Response Entity class to create a response in JSON format using the dto received from Service layer and defining the HTTP status.
+
+Ctrl --> Route: allProjectsResponse
+
+Route --> actor: Show a list of all projects
+
+
+@enduml

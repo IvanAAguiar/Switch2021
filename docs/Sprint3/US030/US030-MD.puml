@@ -1,0 +1,46 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+skinparam classAttributeIconSize 0
+hide circle
+
+title US030 - Domain Model Exert
+
+together {
+
+class Company{
+}
+
+class Project{
+- code
+}
+
+class Sprint{
+- name
+- startDate
+- endDate
+}
+
+class SprintBacklog{
+}
+
+class UserStory{
+- name
+- priority
+- description
+}
+
+class UserStoryStatus{
+- description
+}
+
+Company "1" -- "0..*" Project: contains
+Project "1" -- "0..*" Sprint: has
+Sprint "1" -- "1" SprintBacklog: has
+SprintBacklog "1" -- "0..*" UserStory: contains
+UserStory "1" -- "1" UserStoryStatus: has
+
+@enduml
+
+
+

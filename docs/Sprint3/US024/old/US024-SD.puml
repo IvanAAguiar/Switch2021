@@ -1,0 +1,52 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title US024 - As Administrator, I want to get a list all user accounts and their status
+
+autoactivate on
+autonumber
+
+actor "Administrator" as User
+participant ": SystemUserWithStatusUI" as System
+participant ": SystemUserWithStatusController" as Ctrl
+participant ": Company" as C1
+participant "sysUserStore : SystemUserStore" as C2
+participant ": SystemUserWithStatusMapper" as C3
+participant "systemUserList : List<SystemUser>" as C4
+participant "systemUserWithStatusDtoList : List <SystemUserWithStatusDto>" as C5
+participant "systemUserWithStatusDto : SystemUserWithStatusDto" as C6
+
+
+
+
+activate User
+
+User -> System: Get list all user accounts and their status
+System -> Ctrl: getListSystemUserWithStatus()
+Ctrl-> C1 : getSystemUserStore()
+C1--> Ctrl : sysUserStore
+Ctrl->C2 : getSystemUsers()
+C2->C4 : getSystemUsers()
+
+C4-->C2 : systemUserList
+C2-->Ctrl : systemUserList
+
+Ctrl->C3 :toDto(systemUserList)
+
+C3->C5 **: create()
+ loop for each know SystemUser
+C3->C4 : getUserName()
+C4-->C3 : userName
+C3->C4 : getEmail()
+C4-->C3 : email
+C3->C4 : getActivateUserStatus()
+C4-->C3 : activateUserStatus
+C3-> C6 ** : create(userName, email, activateUserStatus)
+C3->C5 : add(systemUserWithStatusDto)
+C5-->C3 : true
+end
+C3-->Ctrl: systemUserDtoList
+Ctrl-->System : systemUserDtoList
+System-->User : Show requested list user accounts with status
+
+@enduml

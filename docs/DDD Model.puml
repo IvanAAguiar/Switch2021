@@ -1,0 +1,229 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+
+'Layout Format---------------------------------------------
+left to right direction
+hide circle
+
+Task -d[hidden]> Sprint
+Task -d[hidden]-> UserStory
+Task -d[hidden]> Resource
+
+Sprint -d[hidden]--> Project
+UserStory -d[hidden]--> Project
+Resource -d[hidden]--> Project
+Sprint -d[hidden]--> SystemUser
+UserStory -d[hidden]--> SystemUser
+Resource -d[hidden]-> SystemUser
+
+Project -r[hidden]-> Typology
+
+
+title Domain Model
+package Model {
+title Domain Model
+package Model {
+
+
+'Project Aggregate:--------------------------------------------------
+package Project << aggregate >> #Yellow {
+class Project <<root>>{
+-startDate
+-endDate
+}
+class Customer <<v.o.>>{
+}
+Project "*" --> "1" Customer: requested by
+class BusinessSector <<v.o.>>{
+}
+Project "1" --> "1" BusinessSector: correlates
+class Description <<v.o.>>{
+}
+Project --> "1" Description: is described by
+class ProjectStatus <<ENUM>>{
+}
+Project "*" --> "1" ProjectStatus: includes
+class NumberOfSprints <<v.o.>>{
+}
+Project --> "1" NumberOfSprints: is divided in
+class Budget <<v.o.>>{
+}
+Project --> "1" Budget: is financed by
+class SprintDuration <<v.o.>>{
+}
+Project --> "1" SprintDuration: has
+}
+
+class ProjectID <<v.o.>>{
+}
+Project "1" -u> "1" ProjectID: is identified by
+Project "*" -u> "1" TypologyID: is characterized by
+
+
+'Resource Aggregate:--------------------------------------------------
+package Resource << aggregate >> #Gold{
+class Resource <<root>>{
+-startDate
+-endDate
+}
+class ProjectRole <<v.o.>>{
+}
+Resource "*" -u-> "1" ProjectRole: plays a
+class CostPerHour <<v.o.>>{
+}
+Resource "*" -u-> "1" CostPerHour: costs
+class PercentageOfAllocation <<v.o.>>{
+}
+Resource -u-> "1" PercentageOfAllocation: is allocated
+}
+
+class ResourceID <<v.o.>>{
+}
+Resource "1" -u-> "1" ResourceID: is identified by
+Resource "*" --> "1" SystemUserID: is linked to
+Resource "*" -> "1" ProjectID: is allocated to
+
+
+'Sprint Aggregate:--------------------------------------------------
+package Sprint << aggregate >> #LightBlue {
+class Sprint <<root>>{
+-startDate
+-endDate
+}
+class Description1 <<v.o.>>{
+}
+Sprint -u-> "1" Description1: is described by
+class ScrumBoard <<entity>>{
+}
+Sprint -u-> "1" ScrumBoard: is monitored in
+
+class UserStoryOfSprint <<v.o.>>{
+}
+ScrumBoard -u-> "*" UserStoryOfSprint: has records of
+class UserStoryOfSprintStatus <<ENUM>>{
+}
+UserStoryOfSprint "*" -r-> "1" UserStoryOfSprintStatus: includes
+}
+
+class SprintID <<v.o.>>{
+}
+Sprint "1" -u> "1" SprintID: is identified by
+UserStoryOfSprint -u-> "1" UserStoryID: represents
+Sprint "1" --> "1" ProjectID: belongs to
+
+
+'SystemUser Aggregate:--------------------------------------------------
+package SystemUser << aggregate >> #LightCyan {
+class SystemUser <<root>>{
+-isActive
+}
+class Name <<v.o.>>{
+}
+SystemUser --> "1" Name: is named by
+class Photo <<v.o.>>{
+}
+SystemUser --> "1" Photo: has
+class Password <<v.o.>>{
+}
+SystemUser --> "1" Password: has
+class Function <<v.o.>>{
+}
+SystemUser --> "1" Function: has
+class Request <<v.o.>>{
+-requestDate
+}
+SystemUser "1" -l-> "*" Request: sends
+}
+
+class SystemUserID <<v.o.>>{
+}
+SystemUser "1" -u> "1" SystemUserID: is identified by
+SystemUser "*" -l-> "1..*" UserProfileID: is assigned
+Request "*" -u-> "1" UserProfileID: ask for a
+
+'Task Aggregate:--------------------------------------------------
+package Task << aggregate >> #LightPink {
+class Task <<root>>{
+-effortEstimate
+-startDate
+-endDate
+}
+class Name1 <<v.o.>>{
+}
+Task "1" -u-> "1" Name1: is named by
+class Description3 <<v.o.>>{
+}
+Task "1" -u-> "1" Description3: is described by
+class TaskType <<ENUM>>{
+}
+Task "*" -u-> "1" TaskType: is classified by
+class TaskEffort <<v.o.>>{
+}
+Task "1" -u-> "*" TaskEffort: is measured by
+
+class TaskStatus <<ENUM>>{
+}
+Task "*" -u-> "1" TaskStatus: includes
+}
+
+class TaskID <<v.o.>>{
+}
+Task "1" -l> "1" TaskID: is identified by
+Task "*" --> "1" ResourceID: under responsability of
+Task "1" --> "1" UserStoryID: belongs to
+Task "1" -u> "1" SprintID: belongs to
+Task "1" -- "*" Task: is preceded by
+
+
+'Typology Aggregate:--------------------------------------------------
+package Typology << aggregate >> #Beige {
+class Typology <<root>>{
+}
+}
+
+class TypologyID <<v.o.>>{
+}
+Typology "1" -u-> "1" TypologyID: is identified by
+
+
+'UserProfile Aggregate:--------------------------------------------------
+package UserProfile << aggregate >> #LightSalmon {
+class UserProfile <<root>>{
+}
+}
+
+class UserProfileID <<v.o.>>{
+}
+UserProfile "1" -u-> "1" UserProfileID: is identified by
+
+
+'UserStory Aggregate:--------------------------------------------------
+package UserStory << aggregate >> #LightGreen {
+class UserStory <<root>>{
+-usStartDate
+-usEndDate
+-usCancelled
+-parentUserStory
+}
+class UsTitle <<v.o.>>{
+}
+UserStory -u-> "1" UsTitle: is described by
+class UsPriority <<v.o.>>{
+}
+UserStory -u-> "1" UsPriority: has
+class Description2 <<v.o.>>{
+}
+UserStory -u-> "1" Description2: is described by
+class UsHour <<v.o.>>{
+}
+UserStory -u-> "1" UsHour: estimated in
+}
+
+class UserStoryID <<v.o.>>{
+}
+UserStory "1" -u-> "1" UserStoryID: is identified by
+UserStory "1" --> "1" ProjectID: belongs to product backlog of
+UserStory "1" -- "*" UserStory: is groomed
+
+@enduml

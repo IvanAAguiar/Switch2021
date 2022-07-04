@@ -1,0 +1,39 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title US011 - As Authenticated User, i want to change his/her password
+
+autoactivate on
+autonumber
+
+actor "Authenticated User" as authenticatedUser
+participant ":changePasswordUI" as UI
+participant ":changePasswordController" as Ctrl
+participant ":Company" as company
+participant "systemUserStore:SystemUserStore" as systemUserStore
+participant "user:SystemUser" as user
+
+activate authenticatedUser
+
+authenticatedUser -> UI: Starts changing password
+UI --> authenticatedUser: Requests Data (oldPassword, newPassword)
+authenticatedUser -> UI: Types Requested Data
+UI -> Ctrl: changePassword(email, oldPassword, newPassword, newPasswordConfirmation)
+Ctrl -> company: getSystemUserStore()
+company --> Ctrl: systemUserStore
+Ctrl -> systemUserStore: getUserByEmail(email)
+loop for each known System User in System User Store
+systemUserStore -> user: isYourEmail(email)
+user --> systemUserStore: true
+end
+systemUserStore --> Ctrl: user
+Ctrl -> user: updatePassword (oldPassword, newPassword, newPasswordConfirmation)
+user -> user: validateOldPassword(oldPasswordUI)
+deactivate user
+user -> user: setPassword(newPassword)
+deactivate user
+user --> Ctrl: true
+Ctrl --> UI: true
+UI --> authenticatedUser: Informs Operation Success
+
+@enduml

@@ -1,0 +1,156 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title US033 - As SM/Team Member, I want to register work done on a Task
+
+autoactivate on
+autonumber
+
+actor "SM/Team Member" as User
+participant ": RegisterWorkToTaskUI" as Ui
+participant ": RegisterWorkToTaskController" as Ctrl
+participant ": Company" as company
+participant "userStorySprintProjectDTO\n : UserStorySprintProjectDTO" as userStorySprintProjectDTO
+participant "projStore\n : ProjectStore" as projStore
+participant "proj\n : Project" as project
+participant "sprintList\n : SprintList" as sprintList
+participant "sprint\n : Sprint" as sprint
+participant "userStoryList\n : Sprintbacklog" as sprintBacklog
+participant "userStory\n : UserStory" as userStory
+participant "taskList\n : TaskList" as taskList
+participant "RegisterWorkToTaskMapper" as mapper
+participant "taskIdNameDTOList\n : List<TaskIdNameDTO>" as taskIdDTOList
+participant "taskIdNameDTO\n : TaskIdNameDTO" as taskIdDTO
+participant "taskEffortDTO\n : TaskEffortDTO" as effortDTO
+participant "task\n : Task" as task
+participant "effort\n : TaskEffort" as effort
+activate User
+
+User->Ui : want to register a new task effort\nAccess my current projects
+Ui->Ctrl: getCurrentProjectsByUserEmail(email)
+ref over Ctrl, company : US033-SD_1getProjects
+Ctrl-->Ui:projectCodeNameDTOList
+Ui-->User: asks to select the project
+
+User->Ui: selects the intended project
+Ui->Ctrl: getProject(codeDTO)
+ref over Ctrl, company : US033-SD_2getProject
+Ctrl-->Ui: projCodeNameSprintListDTO
+Ui-->User: shows project partial details
+
+User->Ui: Access project sprint list
+Ui->Ctrl: getProjectSprints()
+ref over Ctrl, company : US033-SD_3getSprints
+Ctrl-->Ui: sprintIdNameDTOList
+Ui-->User: asks to select the sprint
+
+User->Ui: selects the intended sprint
+Ui->Ctrl: getSprint(idSprintDTO)
+Ctrl-->Ui:sprintIdNameSprintBacklogDTO
+Ui-->User: shows sprint partial details
+
+User->Ui: Access sprint backlog
+Ui->Ctrl: getUserStories(sprintIdDTO)
+ref over Ctrl, company : US033-SD_3getUserStories
+Ctrl-->Ui: userStoryIdDTOList
+Ui-->User: asks to select the user story
+
+User->Ui: selects the intended user story
+Ui-->User:userStoryIdDTO
+
+User->Ui : Access it's task list.
+Ui->Ctrl: getTasks(userStorySprintProjectDTO)
+
+Ctrl->sprintBacklog: getUserStory(idUserStory)
+loop for each userStory in sprintBacklog
+sprintBacklog->userStory: hasId\n(userStoryId)
+userStory-->sprintBacklog: true
+end
+sprintBacklog-->Ctrl: userStory
+
+Ctrl->userStory: taskList = getTasks()
+deactivate
+
+
+
+
+
+Ctrl->mapper: toDTOList(taskList)
+mapper->taskIdDTOList **: create()
+loop for each task in taskList
+mapper->taskList: get(i)
+taskList-->mapper: task
+mapper->mapper: taskIdNameDTO\n = toDTO(task)
+mapper->taskIdDTO**: create(task.getIdTask(), task.getName())
+deactivate mapper
+mapper->taskIdDTOList: add(taskIdNameDTO)
+taskIdDTOList-->mapper: true
+end
+mapper-->Ctrl: taskIdNameDTOList
+Ctrl-->Ui: taskIdNameDTOList
+Ui-->User: asks to select the task
+
+User -> Ui: selects the intended task
+Ui->Ctrl: getTask(idTask)
+Ctrl->taskList: getTaskById(idTask)
+loop for each task in taskList
+taskList->task: hasId(idTask)
+task-->taskList: true
+end
+taskList-->Ctrl: task
+Ctrl->mapper: toDTO(task)
+mapper->task:taskId = getIdTask()
+deactivate
+mapper->task:taskName = getName()
+deactivate
+mapper->taskIdDTO**: create(taskId, taskName)
+mapper-->Ctrl: taskIdNameDTO
+Ctrl-->Ui: taskIdNameDTO
+Ui-->User: shows task details
+User -> Ui: starts registering a new task effort:\ntypes requested data (workHours,\n workMinutes, workDate,\n comment, attachment)
+Ui -> Ctrl: createTaskEffort(taskEffortDTO)
+Ctrl->effortDTO: effortHours = getEffortHours()
+deactivate
+Ctrl->effortDTO: effortMinutes = getEffortMinutes()
+deactivate
+Ctrl->effortDTO: effortdate = getEffortDate()
+deactivate
+Ctrl->effortDTO: comment = getComment()
+deactivate
+Ctrl->effortDTO: attachment = getAttachment()
+deactivate
+Ctrl->task:createTaskEffort(effortHours, effortMinutes, effortDate, comment, attachment)
+task->effort **: createTaskEffort\n(effortHours, effortMinutes,\n effortDate, comment, attachment)
+task-->Ctrl: effort
+Ctrl -> task: saveTaskEffort(effort)
+task -> task: validateTaskEffort(effort)
+deactivate task
+opt validate return true
+    opt taskEffortList.isEmpty()
+    task -> task: setStartDate(effortDate)
+    deactivate task
+    task -> task: setStatus("Running")
+    deactivate task
+    end
+task -> task: add(effort)
+deactivate task
+task -> task: updateHoursSpent(effort)
+deactivate task
+task -> task: updateEffortRemaining(effort)
+deactivate task
+task -> task: updateExecutionPercentage()
+deactivate task
+    opt effortRemaining == 0
+    task -> task: setStatus("Finished")
+    deactivate task
+    task -> task: setEndDate(effortDate)
+    deactivate task
+    end
+end
+task-->Ctrl: true
+Ctrl -> userStory: updateWorkDone(task)
+userStory-->Ctrl: true
+Ctrl-->Ui : true
+
+Ui-->User : Informs operation success.
+@enduml

@@ -1,0 +1,28 @@
+@startuml
+
+title US005 - As a Director, I want to create/register a new project
+
+autoactivate on
+autonumber
+
+participant ": IProjectRepo" as Repository
+participant ": ProjectJpaAssembler" as Assembler
+participant "projectJPA : ProjectJpa" as projectJPA
+participant ":IProjectRepositoryJpa" as Driver
+participant "savedData:Data" as Data
+participant "project:Project" as project
+
+[o->Repository: save(newResource)
+Repository -> Assembler : toData(newProject)
+Assembler -> projectJPA **: create ()
+Assembler --> Repository : ProjectJPA
+Repository -> Driver: save(projectJpa)
+Driver -> Data**: create()
+Driver --> Repository : savedData
+Repository -> Assembler: toDomain (savedData)
+Assembler -> project **: create()
+Assembler --> Repository :project
+
+[<--Repository: project
+
+@enduml

@@ -1,0 +1,277 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+title US015 - As Director, I want to get a list of all projects
+
+skinparam classAttributeIconSize 0
+
+
+
+package "InfraEstructure" <<Rectangle>> #lightblue {
+package "Route"{
+    class "ShowAllProjectsRoute" as route <<Component>>
+    }
+
+    package "Persistence" {
+    interface "IProjectRepositoryJpa" as jpa <<Interface>>
+    }
+}
+
+package "Interface Adapters" <<Rectangle>> #lightgreen {
+package "Controllers" <<Folder>> {
+
+class "ProjectController" as ctrl << Component >> {
++getAllProjects()
+}
+}
+
+package "Repositories" <<Folder>>{
+class "ProjectRepository" as uRepo << Component >> {
++save(profile)
++findByUserProfileID(userProfileID)
+    }
+}
+}
+
+
+package "Application Service" <<Rectangle>> #lightpink{
+package "App Services" {
+class "ProjectService" as srv << Service >> {
++getAllProjects()
+   }
+}
+
+package "Repository Interface" {
+interface "IProjectRepo" as repo <<(I, Violet) Interface>>{
++findAll()
+}
+}
+}
+
+package "Domain" <<Rectangle>> #burlywood{
+
+package "Aggregate" <<Folder>>{
+class "Project" as project << Root >> {
+- name: Description
+- description: Description
+- sector: BusinessSector
+- startDate: LocalDate
+- numberOfSprints: NumberOfSprints
+- sprintDuration: SprintDuration
+- budget: Budget
+
++ Project(name, description, sector, startDate,numberOfSprints, SprintDuration sprintDuration, Budget budget)
+}
+}
+
+package "Factory" as factory <<Folder>>{
+
+package "VO Factories" as vofac <<Folder>> {
+
+
+class "DescriptionFactory" as f <<Factory>> {
++createDescription(description)
+}
+
+ class "BusinessSectorFactory" as f1 <<Factory>> {
++createBusinessSector(description)
+  }
+
+class "NumberOfSprintsFactory" as f3 <<Factory>> {
++create(numberOfSprints)
+}
+
+class "SprintDurationFactory" as f4 <<Factory>> {
++SprintDuration (sprintDurationDays)
+}
+
+class "BudgetFactory" as f5 <<Factory>> {
++create (budget)
+}
+}
+
+class "ProjectFactory" as f6 <<Factory>> {
++createProject (projectDTO)
+}
+
+
+}
+
+
+package "Factory Interface" as int <<Folder>> {
+package "VO Factory Interface" as factoryInterface <<Folder>>{
+
+ interface "IDescription" as i <<Interface>> {
++createDescription(description)
+  }
+
+interface "IBusiness Sector" as i1 <<Interface>> {
++createBusinessSector(description)
+  }
+
+
+interface "INumberOfSprints" as i2 <<Interface>> {
++create(numberOfSprints)
+  }
+
+interface "ISprintDuration" as i3 <<Interface>> {
++SprintDuration (sprintDurationDays)
+  }
+
+interface "IBudget" as i4 <<Interface>> {
++create (budget)
+  }
+  }
+
+interface "IProjectFactory" as i5 <<Interface>> {
+  +createProject (projectDTO)
+  }
+  }
+
+
+package "Value Object" as valueobject {
+
+class "Description" as VO <<Value Object>> {
++Description(name)
++Description(description)
+}
+
+class "BusinessSector" as VO2 <<Value Object>> {
++BusinessSector (sector)
+}
+
+class "NumberOfSprints" as VO4 <<Value Object>> {
++NumberOfSprints (numberOfSprints)
+}
+
+class "SprintDuration" as VO5 <<Value Object>> {
++SprintDuration (sprintDuration)
+}
+
+class "Budget" as VO6 <<Value Object>> {
++Budget (budget)
+}
+
+class "ProjectID" as VO7 <<Value Object>> {
++ProjectID (projectCode)
+}
+
+class "TypologyID" as VO8 <<Value Object>> {
++TypologyID (typologyId)
+}
+
+class "Customer" as VO9 <<Value Object>> {
++Customer (customer)
+}
+}
+
+package "Enum" as enum {
+class "ProjectStatusEnum" as V10 <<Enum>> {
++ProjectStatusEnum (projectStatus)
+}
+}
+
+package "LocalDate" as localdate {
+class "LocalDate" as V11 <<LocalDate>> {
++LocalDate (startDate)
++LocalDate (endDate)
+}
+}
+
+}
+
+
+
+package "Data Model" <<Rectangle>>{
+package "Assembler" <<Folder>> {
+        class "UserJpaAssembler" as assemblerjpa <<Component>> {
+        +toData (user)
+        +toModel(userJPA)
+        }
+     }
+ }
+
+
+
+
+
+
+package "DTO" <<Rectangle>>  {
+
+package "DTO " {
+    class "ProjectDTO" as dto <<Component>> {
+    -code: String
+    -projectName:String
+    -description: String
+    -businessSector: String
+    -numberOfSprints: String
+    -budget: String
+    -status: String
+    -startDate: String
+    -sprintDuration: String
+    }
+    }
+
+
+package "Mapper"{
+    class "ProjectMapper" as mapper <<Component>> {
+    +model2Dto(newProject)
+    }
+}
+
+
+     package "OutputDTO " {
+         class "ProjectDTO" as outputdto <<Component>> {
+         -projectName:String
+         -description: String
+         -businessSector: String
+         -startDate: String
+         -numberOfSprints: String
+         -budget: String
+         -sprintDuration: String
+         -typo: String
+         -customer: String
+         }
+     }
+      }
+    package "Data Model" <<Rectangle>>{
+    package "Assembler" <<Folder>> {
+        class "ProjectAssembler" as assemblerjpa <<Component>> {
+        +toData (project)
+        +toDomain(projectJPA)
+        }
+    }
+
+
+    package "JPA" <<Folder>> {
+        class "ProjectJpa" as projjpa <<Component>> {
+        -projectCode: ProjectID
+        -name: String
+        -description: String
+        -businessSector: String
+        -startDate: String
+        -numberOfSprints: int
+        -sprintDuration: long
+        -budget: double
+        -endDate: String
+        -typology: String
+        -customer: String
+        -status: String
+        }
+
+
+uRepo .up.> jpa
+route .up.> ctrl
+uRepo .down.|>repo
+srv .l.> repo
+ctrl .d.>srv
+f6 .d.|> i5
+uRepo ..l.>projjpa
+uRepo ..l.>assemblerjpa
+mapper ..> outputdto
+srv..>mapper
+srv..>dto
+f6..>project
+
+
+@enduml

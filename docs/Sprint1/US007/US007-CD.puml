@@ -1,0 +1,212 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+title US007 - As Director, I want to associate a human resource (user) to a project
+
+skinparam classAttributeIconSize 0
+
+
+
+'-------------------INFRASTRUCTURE-----------------------'
+package "Infrastructure" <<Rectangle>> #lightblue  {
+package "Route"{
+class "CreateResourceInAProjectRoute" as route << Component >>
+}
+package "Persistence" {
+interface "IResourceRepositoryJPA" as iResourceRepositoryJPA << Interface>>
+}
+}
+
+
+
+
+'-------------------INTERFACE ADAPTERS-------------------'
+package "Interface Adapters" <<Rectangle>> #lightgreen {
+package "Controllers" <<rectangle>>{
+class "ResourceController" as ctrl << Component >> {
++ createResource(json)
+}
+}
+
+package "Repositories" <<rectangle>>{
+class "ResourceRepo" as resStore << Repository >> {
++ findAllUsers(systemUserID)
++ findAllByProject(projectID)
+}
+class "SystemUserRepo" as userStore << Repository >> {
++ existsByID(systemUserID)
+}
+class "ProjectRepo" as projStore << Repository >> {
++ findByID(projectID)
++ existsByID(projectID)
+}
+}
+}
+
+
+
+'-------------------APPLICATION SERVICE------------------'
+package "Application Service" <<Rectangle>> #lightpink{
+package "App Services" <<rectangle>>{
+class "CreateResourceInAProjectService" as srv << Service >> {
++ createAndSaveResource(inDto)
+}
+}
+package "IRepositories" <<rectangle>>{
+interface "IResourceRepo" as resRepo{
++ findAllUsers(systemUserID)
++ findAllByProject(projectID)
+}
+interface "ISystemUserRepo" as userRepo{
++ existsByID(systemUserID)   
+}
+interface "IProjectRepo" as projRepo{
++ findByID(projectID)
++ existsByID(projectID)
+}
+}
+package "Factory Interface" <<Rectangle>>{
+interface "IResourceFactory" as iResourceFactory{
++ createResource(createResourceDTO)
+}
+}
+}
+
+
+
+
+'-------------------DOMAIN-------------------------------'
+package "Domain" <<Rectangle>> #burlywood{
+package "Domain Service" <<Rectangle>>{
+entity "Manage Resource Service" as dsrv << Root >> {
++ validateAllocation(createResourceDTO)
++ validateProjectRole(createResourceDTO)
+}
+}
+package "Aggregates" <<rectangle>>{
+package "Resource" <<Rectangle>>{
+entity "Resource" as res << Root >>{
+- resourceID : ResourceID
+- endDate : LocalDate
+- percentageOfAllocation : PercentageOfAllocation
+- costPerHour : CostPerHour
+- projectRole : ProjectRole
++ Resource(resourceID, endDate, percentageOfAllocation, \n costPerHour, projectRole)
+}
+}
+package "SystemUser" <<Rectangle>>{
+entity "SystemUser" as user << Root >>{
+- userID : UserId
+- userName : Name
+- photo : Photo
+- password : Password
+- passwordConfirmation : PasswordConfirmation
+- function : Function
+- visitorID : UserProfileID
++ User (userID, name, photo, password, passwordConfirmation, function, userProfileID)
+}
+}
+package "Project" <<Rectangle>>{
+entity "Project" as project << Root >>{
+- name : Description
+- description : Description
+- businessSector : BusinessSector
+- startDate : LocalDate
+- numberOfSprints : NumberOfSprints
+- sprintDuration : SprintDuration
+- budget : Budget
++ Project (name, description, businessSector, startDate, \n numberOfSprints, sprintDuration, budget)
+}
+}
+}
+package "Factory" <<rectangle>>{
+class "ResourceFactory" as resourceFactory <<Factory>> {
++ createResource(createResourceDTO)
+}
+}
+package "Value Object" <<rectangle>>{
+class "ResourceID" as resId << Value Object >>{
+- userID : UserID
+- projectID : ProjectID
+- startDate : LocalDate
+}
+class "UserID" as userId << Value Object >>{
+- email : Email
+}
+class "ProjectId" as projId << Value Object >>{
+- projectID : ProjectID
+}
+}
+}
+
+package "Data Model" <<Rectangle>> {
+class "ResourceJPAAssembler" as assembler <<Component>> {
++ toData (resource)
++ toModel (resourceJPA)
+}
+class "ResourceJPA" as jpa <<Component>> {
+- resourceID : ResourceID
+- endDate : String
+- percentageOfAllocation : double
+- costPerHour : double
+- projectRole : String
+}
+}
+
+
+'-------------------DTO----------------------------------'
+package "DTO" <<rectangle>>{
+class "ResourceMapper" as map <<Component>> {
++ model2Dto()
+}
+class "CreateResourceDto" as inDto <<Component>> {
+- systemUserID : String
+- projectID : String
+- projectRole : String
+- startDate : String
+- endDate : String
+- percentageOfAllocation : double
+- costPerHour : double
+}
+class "OutputResourceDto" as outDto <<Component>> {
+- user : String
+- project : String
+- role : String
+- startDate : String
+- endDate : String
+- percentageOfAllocation : double
+- costPerHour : double
+}
+}
+
+
+'-------------------RELATIONSHIPS------------------------'
+route ..> ctrl
+ctrl .d..> srv
+srv .d..> dsrv
+
+srv .r.> userRepo
+srv .r.> projRepo
+srv .r.> resRepo
+
+userRepo <|.u. userStore
+projRepo <|.u. projStore
+resRepo <|.u. resStore
+
+srv .l.> map
+map ..> outDto
+ctrl ..> inDto
+srv ..> inDto
+
+project *--> projId
+user *--> userId
+res *--> resId
+resId o--> projId
+resId o--> userId
+
+resStore .right.> assembler
+resStore .right.> jpa
+resStore .left.> iResourceRepositoryJPA
+resourceFactory .up.|> iResourceFactory
+
+@enduml

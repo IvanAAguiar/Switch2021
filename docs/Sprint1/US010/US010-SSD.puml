@@ -1,0 +1,17 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title US010 - As Authenticated User, i want to update its own data (e.g. photo, function, ...)
+
+autoactivate on
+autonumber
+
+actor "Authenticated User" as user
+participant ":System" as System
+
+activate user
+
+user -> System: Update System User Data
+System --> user: Informs Operation Success
+
+@enduml

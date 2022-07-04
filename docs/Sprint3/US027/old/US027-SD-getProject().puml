@@ -1,0 +1,37 @@
+@startuml
+
+title "US027 - As Director, I want to define the Product Owner of a project."
+
+autoactivate on
+autonumber
+
+actor "Director" as Director
+participant ": AssignProductOwnerUI" as UI
+participant ": AssignProductOwnerController" as Controller
+participant ":Company" as Company
+participant "projStore:ProjectStore" as ProjectStore
+participant "proj:Project" as Project
+participant "ProjectsMapper" as ProjectsMapper
+participant "projDTO: ProjectDTO" as ProjectDTO
+
+
+activate Director
+
+Director -> UI: Ask to access a project
+UI -> Controller: getProject(code)
+Controller -> Company: getProjectStore()
+return projStore
+Controller -> ProjectStore: getProjectByCode(code)
+    loop hasCode(code)
+        ProjectStore -> Project: hasCode(code)
+        return true
+    end
+return proj
+Controller -> ProjectsMapper: toDTO(proj)
+ProjectsMapper --> ProjectDTO**: ProjectDTO(String code, String projectName, String startDate, String endDate) 
+deactivate ProjectDTO
+ProjectsMapper --> Controller: projDTO
+Controller --> UI: projDTO
+UI --> Director: projDTO
+
+@enduml

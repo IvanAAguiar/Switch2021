@@ -1,0 +1,50 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title Sequence Diagram US025 "As Administrator, I want to inactivate an user account"
+
+autoactivate on
+autonumber
+
+actor "Administrator" as Administrator
+participant ":InactivateAnUserAccountUI" as UI
+participant ":InactivateAnUserAccountController" as Ctrl
+participant ":Company" as Company
+participant "systemUserStore:SystemUserStore" as SystemUserStore
+participant ":SystemUserMapper" as SystemUserMapper
+participant "systemUserList : List<SystemUser>" as C4
+participant "systemUserWithEmailDtoList : List <SystemUserWithEmailDto>" as C5
+participant ":systemUserListDTO: List <SystemUserDTO>" as C6
+
+
+
+activate "Administrator"
+
+"Administrator" -> UI: Search user
+UI -> Ctrl: getUserList()
+Ctrl -> Company: getSystemUserStore()
+return systemUserStore
+Ctrl -> SystemUserStore : getSystemUsers()
+SystemUserStore -> C4: getSystemUsers()
+return systemUserList
+return systemUserList
+Ctrl -> SystemUserMapper: toDTO(systemUserList)
+SystemUserMapper -> C5 **: create ()
+loop
+SystemUserMapper -> C4 : getUserName()
+return userName
+SystemUserMapper -> C4 : getEmail()
+return email
+SystemUserMapper -> C6 ** : create(userName, email)
+SystemUserMapper -> C5 : add (systemUserEmail
+return true
+end
+return systemUserDTO
+return systemUserDTO
+return Show requested list with username and email
+
+
+
+
+
+@enduml

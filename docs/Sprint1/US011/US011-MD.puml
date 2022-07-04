@@ -1,0 +1,19 @@
+@startuml
+left to right direction
+hide circle
+skinparam classAttributeIconSize 0
+
+
+title Domain Model
+
+
+'Project Aggregate:--------------------------------------------------
+class User #Yellow{
+- name
+- function
+- password
+- photo
+- isActive
+}
+
+@enduml

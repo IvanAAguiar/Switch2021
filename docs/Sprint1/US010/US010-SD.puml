@@ -1,0 +1,51 @@
+@startuml
+title US010 - As Authenticated User, i want to update its own data (e.g. photo, function,...)
+
+autoactivate on
+autonumber
+
+participant ": UpdatePersonalDataRoute" as route
+participant ": UserController" as Ctrl
+participant ": UserService" as service
+participant ": IUserRepo" as iRepo
+participant " user : User" as systemUser
+participant ": UserMapper" as mapper
+participant "outputUserDTO : \nOutputUserDTO" as outPutDTO
+participant "response : ResponseEntity" as entity
+
+[o-> route: PATCH/users/{ID}(json)
+
+route -> Ctrl: updatePersonalData(updateDataDTO)
+
+note right route: Change from json to dto hidden to simplify diagram
+
+Ctrl -> service: updatePersonalData\n(updateDataDTO)
+note over service : The creation of the id are hidden to simplify the diagram.
+
+service -> iRepo: findByUserId(userID)
+ref over iRepo: [[US010-SD-JPA-User.puml]]
+return user
+
+service -> systemUser: editPersonalData (username, function, photo)
+
+
+note over systemUser : The changes of attributes are hidden to simplify the diagram .
+deactivate
+
+service -> iRepo: save(user)
+ref over iRepo: [[US010-SD-JPA-Save.puml]]
+return updatedUser
+
+service -> mapper: toDto(updatedUser)
+mapper -> outPutDTO**: create()
+mapper --> service: outPutUserDTO
+service --> Ctrl: outPutUserDTO
+
+
+Ctrl->entity**:create(outPutUserDTO)
+
+Ctrl -->route: response
+[<--route : Inform operation success
+
+
+@enduml

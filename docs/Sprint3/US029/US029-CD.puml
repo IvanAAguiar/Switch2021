@@ -1,0 +1,71 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+'hide circle
+skinparam classAttributeIconSize 0
+
+title US029 - As Project Manager, I want to start a sprint
+
+class StartASprintUI {
+}
+
+class StartASprintController {
++startASprint(sprintDTO)
+}
+
+class StartASprintDTO {
++getCode()
++getSprintID()
++getStartDate()
+}
+
+class Company {
++getProjectStore()
+}
+
+class ProjectStore {
++getProjectByCode(String code)
+}
+
+class Project {
+-code : String
+-sprintDuration: int
+-hasCode(code)
++getProjectTeam()
+}
+
+class SprintList {
+sprintList : List<Sprint>
++getSprint(sprintID)
++startASprint(sprintID, startDate, projectTeam)
++getSprint(sprintID)
++validateStartDate(startDate)
+}
+
+class Sprint {
+-idSprint : int
+-startDate : LocalDate
++hasSprintID(sprintID)
++setStartDate()
+}
+
+class ProjectTeam {
++validateProjectTeam()
+}
+
+StartASprintUI ..> StartASprintController
+StartASprintUI ..> StartASprintDTO
+StartASprintController ..> Company
+StartASprintController ..> ProjectStore
+StartASprintController ..> Project
+StartASprintController ..> SprintList
+StartASprintController ..> Sprint
+StartASprintController ..> ProjectTeam
+
+Company "1" o-- "1" ProjectStore: knows the
+ProjectStore "1" *-- "0..*" Project: has a list of
+Project "1" *-- "0..*" SprintList: contains
+Project "1" *-- "1" ProjectTeam: has
+Sprint "1" -- "1" SprintList: has a list of
+
+@enduml

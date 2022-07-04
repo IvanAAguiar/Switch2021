@@ -1,0 +1,54 @@
+.ant-layout {
+  height: 100%;
+}
+
+.logo {
+  height: 50px;
+  margin: 16px;
+  background-image: url(./beaver-svgrepo.svg);
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.site-layout .site-layout-background, .site-layout-content {
+  background: #fafafa;
+}
+
+
+/* Define color of collapse button on sidebar */
+.ant-layout-sider-trigger {
+  background-color: #00474f;
+}
+
+.breadcrumb {
+  cursor: pointer;
+}
+
+.ant-layout-header, .ant-layout-header .ant-menu, .ant-layout-sider, .ant-layout-sider .ant-menu {
+  background-color: #002329;
+}
+
+.anchor-button {
+  font-family: "Verdana", sans-serif;
+	font-size: 1em;
+	text-align: left;
+	color: blue;
+	background: none;
+	margin: 0;
+	padding: 0;
+	border: none;
+	cursor: pointer;
+}
+
+.spin-loading {
+  margin: 20px 0;
+  margin-bottom: 20px;
+  padding: 30px 50px;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+}
+
+.ant-descriptions-bordered .ant-descriptions-item-label{
+  background-color: #f0f0f0;
+}

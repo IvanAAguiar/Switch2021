@@ -1,0 +1,19 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title US031 - As Team Member, I want to create a task in a user story
+
+
+autoactivate on
+autonumber
+
+actor "Team Member" as Member
+participant ":System" as System
+
+activate Member
+
+Member -> System: Create a Task in a user story
+System -> System: CreateTask()
+System --> Member: Confirmation new Task created
+
+@enduml

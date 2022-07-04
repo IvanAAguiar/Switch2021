@@ -1,0 +1,63 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title Sequence Diagram US 028 "As Director, I want to get a list of all human resources in a project"
+
+autoactivate on
+autonumber
+
+actor "Director" as Director
+participant ":GetListHResourceProjectUI" as UI
+participant ":GetListHResourceProjectController" as Controller
+participant ":Company" as Company
+participant "projSt:ProjectStore" as ProjectStore
+participant "proj:Project" as Project
+participant "projTeam:ProjectTeam" as ProjectTeam
+participant "ProjectTeamMapper" as ProjectTeamMapper
+participant "projTeam:List<Resource>" as ProjectTeam2
+participant "res:Resource" as Resource
+participant "projectTeamListDTO:List<ResourcesDTO>" as ProjectTeamDTO
+participant "resDTO:ResourceDTO" as ResourceDTO
+
+activate Director
+
+Director -> UI: Ask to access project team of a project
+UI -> Controller: getProjectTeam()
+Controller -> Company: getProjectStore()
+Company --> Controller: projSt
+Controller -> ProjectStore: getProjectByCode(projectCode)
+ProjectStore --> Controller: proj
+Controller -> Project: getProjectTeam()
+Project --> Controller: projTeam
+Controller -> ProjectTeam: get ProjectTeamList()
+ProjectTeam --> Controller: projTeamList
+Controller -> ProjectTeamMapper : toDTO(projectTeamList)
+ProjectTeamMapper --> ProjectTeamDTO**: create()
+loop for each resource in projectTeamList
+ProjectTeamMapper -> ProjectTeam2: get(i)
+ProjectTeam2 --> ProjectTeamMapper: res
+ProjectTeamMapper -> Resource: getName()
+Resource --> ProjectTeamMapper: name
+ProjectTeamMapper -> Resource: getEmail()
+Resource --> ProjectTeamMapper: email
+ProjectTeamMapper -> Resource: getStartDate()
+Resource --> ProjectTeamMapper: startdate
+ProjectTeamMapper -> Resource: getEndDate()
+Resource --> ProjectTeamMapper: enddate
+ProjectTeamMapper -> Resource: getRole()
+Resource --> ProjectTeamMapper: role
+ProjectTeamMapper -> Resource: getCostPerHour()
+Resource --> ProjectTeamMapper: costPerHour
+ProjectTeamMapper -> Resource: getPercentageOfAllocation()
+Resource --> ProjectTeamMapper: percentageOfAllocation
+ProjectTeamMapper -> ProjectTeamMapper: resDTO = toDTO(res)
+ProjectTeamMapper --> ResourceDTO**: create()
+deactivate ProjectTeamMapper
+ProjectTeamMapper -> ProjectTeamDTO: add(resDTO)
+ProjectTeamDTO --> ProjectTeamMapper: true
+end
+ProjectTeamMapper --> Controller: projTeamListDTO
+Controller --> UI: projTeamListDTO
+UI --> Director: projTeamListDTO
+
+@enduml

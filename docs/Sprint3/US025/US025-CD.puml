@@ -1,0 +1,44 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+hide circle
+skinparam classAttributeIconSize 0
+
+title US025 - As Administrator, I want to inactivate a user account
+
+class InactiveUserAccountUI {
+
+}
+
+class InactiveUserAccountController {
+    +getUser(email)
+}
+
+class Company {
+    +inactivateUser(email)
+}
+
+class SystemUserStore {
++getUserByEmail(email)
+}
+
+class SystemUser {
+-code : String
+-photo: String
+-username: String
+-password: String
+-function: String
+-inactivateUser: boolean
+
++setInactivateUser(email)
+}
+
+InactiveUserAccountUI ..> InactiveUserAccountController
+InactiveUserAccountController ..> Company
+InactiveUserAccountController ..> SystemUserStore
+InactiveUserAccountController ..> SystemUser
+
+Company "1" o- "1" SystemUserStore: has
+SystemUserStore "1" *- "1" SystemUser: has
+
+@enduml

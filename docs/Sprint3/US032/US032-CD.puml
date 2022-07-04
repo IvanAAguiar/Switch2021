@@ -1,0 +1,185 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+skinparam classAttributeIconSize 0
+hide circle
+
+title US032 - As SM/Team Member, I want to create task outside the scope of a user story
+
+class CreateSprintTaskUI{}
+
+class CreateSprintTaskController{
+-Company company
+-Project proj
+-TaskList taskList
+-TaskMapper taskMapper
++getTaskTypes()
++getSprintTasks(String code, int id)
++getCurrentProjectTeam()
++createSprintTask(CreateTaskDTO dto)
+}
+
+class Company{
++getTaskTypeStore()
++getProjectStore()
+}
+
+class TaskTypeStore{
+-List<TaskType> taskTypeList
++getTaskTypesNames()
+}
+
+class TaskType{
+-String name
++getName()
+}
+
+class TaskStatusStore{
+-List<TaskStatus> taskStatusList
++getTaskStatusDescription()
+}
+
+class TaskStatus{
+-String description
++getDescription()
+}
+
+class ProjectStore{
+-List<Project> projectList
++getProjectByCode(String code)
+}
+
+class Project{
+-SprintList sList
+-ProjectTeam projectTeam
++hasCode(String code)
++getSprints()
++getProjectTeam()
+}
+
+class SprintList{
+-List<Sprint> sprintList
++getSprint(int id)
+}
+
+class Sprint{
+-int sprint_ID
+-LocalDate startDate
+-LocalDate endDate
+-TaskList sprintTaskList
++hasID(int id)
++getTaskList()
+}
+
+class TaskList{
+-List<Task> taskList
++getTasksNames()
++createSprintTask(createTaskDTO dto)
++saveTask(Task task)
+-validate(Task task)
+-add(Task task)
+}
+
+class Task{
+-String name
+-String description
+-LocalDate startDate
+-LocalDate endDate
+-double effortEstimate
+-double effortRemaing
+-double hoursSpent
+-double percentageOfExecution
+-TaskStatus taskStatus
+-TaskType taskType
+-List<Task> tasksPrecedence
+-Resource responsible
+-List<Effort> taskEffortList
++Task(String name,String description,int effort,TaskType type,List<Task> precedence,Resource responsible)
++getName()
++getDescription()
++getEffortEstimate()
++getTaskTypeName()
++getResponsibleEmail()
+}
+
+class ProjectTeam{
+-List<Resource> projectTeam
++getCurrentResourcesNames()
++getResourceByName(String name)
+}
+
+class Resource{
+-SystemUser user
+-LocalDate startDate
+-LocalDate endDate
++isCurrent()
++isYourName(String name)
+}
+
+class SystemUser{
+-String name
++hasName(String name)
+}
+
+class TaskMapper{
++toModel(CreateTaskDTO dto)
++toDTO(Task task)
+}
+
+class CreateTaskDTO{
+-String name
+-String description
+-int effortEstimate
+-String taskTypeName
+-String responsibleEmail
++CreateTaskDTO(Task task)
++getName()
++getDescription()
++getEffortEstimate()
++getTaskTypeName()
++getResponsible()
+}
+
+CreateSprintTaskUI ..> CreateSprintTaskController
+CreateSprintTaskUI ..> CreateTaskDTO
+
+CreateSprintTaskController ..> Company
+CreateSprintTaskController ..> TaskTypeStore
+CreateSprintTaskController ..> ProjectStore
+CreateSprintTaskController ..> Project
+CreateSprintTaskController ..> SprintList
+CreateSprintTaskController ..> Sprint
+CreateSprintTaskController ..> TaskList
+CreateSprintTaskController ..> ProjectTeam
+CreateSprintTaskController ..> TaskMapper
+CreateSprintTaskController ..> CreateTaskDTO
+
+
+Company "1" *-- "1" TaskTypeStore
+Company "1" *-- "1" TaskStatusStore
+Company "1" *-- "1" ProjectStore
+
+TaskTypeStore "1" *-- "*" TaskType
+TaskStatusStore "1" *-- "*" TaskStatus
+
+TaskType "1" --o "*" Task
+TaskStatus "1" --o "*" Task
+
+ProjectStore "1" *-- "*" Project
+
+Project "1" *-- "1" SprintList
+Project "1" *-- "1" ProjectTeam
+
+SprintList "1" *-- "*" Sprint
+
+Sprint "1" *-- "1" TaskList
+
+TaskList "1" *-- "*" Task
+
+ProjectTeam "1" *-- "*" Resource
+
+Resource "*" o-- "1" SystemUser
+
+TaskMapper ..> CreateTaskDTO
+
+@enduml

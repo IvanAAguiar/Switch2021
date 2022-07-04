@@ -1,0 +1,25 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+skinparam classAttributeIconSize 0
+hide circle
+
+title Domain Model excerpt - US011 - As Authenticated User, i want to change his/her password
+
+
+class Company{
+}
+
+class SystemUser{
+- username
+- email
+- photo
+- password
+- passwordConfirmation
+- function
+- activateUser
+}
+
+Company "1" <-right- "*" SystemUser: employed by
+
+@enduml

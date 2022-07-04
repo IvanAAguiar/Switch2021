@@ -1,0 +1,59 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+title US005 - As a Director, I want to create/register a new project
+
+autoactivate on
+autonumber
+
+
+participant ":CreateProjectRoute " as route
+participant ":ProjectController " as controller
+participant ":CreateProjectService " as service
+participant ":ProjectRepository " as store
+participant ":ProjectFactory " as factory
+participant ":ProjectMapper " as mapper
+participant "projDTO: OutputProjectDTO " as dto
+participant "newProject:Project " as project
+
+
+[o->  route: POST/projects/createProject(json)
+route -> controller: createProject(jsonDto)
+
+note right
+Change from json to dto hidden to simplify diagram
+end note
+
+controller -> service: createAndSaveProject(projDTO)
+service -> factory: createProject(dto.getName, dto.getDescription, dto.getSector, dto.getStartDate, dto.getNumberOfSprints, dto.getSprintDuration, dto.getBudget)
+
+factory -> project**: create()
+
+factory --> service: newProject
+
+service -> store: saveProject(newProject)
+store -> store: validate(newProject)
+deactivate store
+store -> store: add(newProject)
+deactivate store
+
+store --> service: true
+
+service -> mapper: model2Dto(newProject)
+
+mapper -> dto**: model2Dto(proj)
+
+mapper --> service: projDTO
+
+service --> controller: projDTO
+
+note right
+Change from json to dto hidden to simplify diagram
+end note
+
+controller --> route: outputJson
+
+[<-- route: response
+
+@enduml
+

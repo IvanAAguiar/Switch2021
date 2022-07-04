@@ -1,0 +1,36 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+skinparam classAttributeIconSize 0
+hide circle
+
+title Domain Model excerpt - US029 - As Project Manager, i want to start a sprint.
+
+
+class Company{
+}
+class Project{
+- code
+- projectName
+- description
+- startDate
+- endDate
+- numberOfSprints
+- sprintDuration
+}
+class ProjectTeam{
+}
+class Sprint{
+- idSprint
+- name
+- startDate
+- endDate
+}
+
+
+Company "1" -down-> "*" Project: contains
+Project "1" -right- "1" ProjectTeam: belongs to
+Sprint "*" -right- "1" Project: in divided into
+
+
+@enduml

@@ -1,0 +1,90 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title US007 - As Director, I want to associate a human resource (user) to a project
+
+autoactivate on
+autonumber
+
+participant ":CreateResourceIn\nAProjectRoute" as Route
+participant ":Resource\nController" as Ctrl
+participant ": ResourceService" as srv
+participant ": ISystemUserRepo" as systemUserStore
+participant " : IProjectRepo" as projectStore
+participant " : IResourceFactory" as resourceFactory
+participant " : IResourceRepo" as resourceStore
+participant "res : Resource" as resource
+participant " : ManageResourceService" as domainService
+participant "map : ResourceMapper" as map
+participant "outDto : OutputResourceDto" as outDto
+participant "exception : Exception" as exc
+participant "responseJson : ResponseEntity" as json
+
+[o-> Route:  POST/resources/{id} (json)
+Route -> Ctrl: createAndSaveResource (dto)
+note right Route: Json object was deserialize to a CreateResourceDto object
+Ctrl -> srv: createAndSaveResource (dto)
+
+note over srv : The creation of these ids are hidden to simplify the diagram.
+srv -> srv: checkSystemUserExists(dto.systemUserID)
+srv -> systemUserStore: existsByID(systemUserID)
+systemUserStore --> srv: true
+deactivate srv
+srv -> srv: checkProjectExists(dto.projectID)
+srv -> projectStore: existsByID(projectID)
+projectStore --> srv: true
+deactivate srv
+srv -> srv: checkDatesInsideProject(dto.projectID)
+srv -> projectStore: findByID(projectID)
+projectStore --> srv: true
+deactivate srv
+srv -> srv: checkAllocation(dto.projectID)
+srv -> resourceStore: findAllByUser(systemUserID)
+resourceStore --> srv: true
+srv -> domainService: validateAllocation(inDto)
+domainService --> srv: true
+deactivate srv
+srv -> srv: checkProjectRole(dto)
+srv -> resourceStore: findAllByProject(projectID)
+resourceStore --> srv: true
+srv -> domainService: validateProjectRole(dto)
+domainService --> srv: true
+deactivate srv
+
+
+alt if user and project exist
+srv -> resourceFactory: res: createResource(dto)
+note over resourceFactory : All parameters (value objects) are instantiated in their own factory.
+resourceFactory -> resource**: createResource(resourceId, \n endDate, costPerHour, allocation)
+opt if the request has a role
+note over resourceFactory : Chose a role to creation of the resource are optional
+resourceFactory -> resource :defineRole(role)
+deactivate resourceFactory
+deactivate resource
+end
+
+alt if the criteria of the allocation a resource in a project are met
+srv -> resourceStore: saveResult: save(res)
+ref over resourceStore: [[US007-SD-JPA.puml]]
+deactivate
+
+alt if the new resource was successfully saved
+srv -> map : outDto: model2Dto(res)
+map --> outDto** : create()
+deactivate
+
+else new resource was not saved
+srv --> exc** : create(errorMessage)
+end
+else new resource not be valid
+srv --> exc** : create(errorMessage)
+end
+else user or project does not exist
+srv --> exc** : create(errorMessage)
+end
+srv --> Ctrl: outDto
+Ctrl --> json**: create(outDto)
+Ctrl --> Route: responseJson
+[<--Route: response
+
+@enduml

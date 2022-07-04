@@ -1,0 +1,35 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title US013 - As Administrator, I want to create user profiles
+
+autoactivate on
+autonumber
+
+actor "Administrator" as User
+participant ": CreateUserProfileUI" as System
+participant ": CreateUserProfileController" as Ctrl
+participant ": Company" as C1
+participant " userProfileStore : UserProfileStore" as C2
+participant "profile : UserProfile" as C3
+
+
+activate User
+
+User -> System: Request creation of a user profile
+System --> User: Show form (name)
+User -> System: Send request data in form
+System -> Ctrl: createUserProfile(name)
+Ctrl -> C1: getUserProfileStore()
+C1-->Ctrl: userProfileStore
+Ctrl-> C2 : createProfile(name)
+C2 -> C3 ** : create (name)
+C2-->Ctrl : profile
+Ctrl->C2 : saveUserProfile(profile)
+C2->C2 : validateUserProfile (profile)
+C2->C2 : addUserProfile (profile)
+C2--> Ctrl : true
+Ctrl--> System : true
+System--> User : Informs operation success
+
+@enduml

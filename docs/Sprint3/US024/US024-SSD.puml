@@ -1,0 +1,19 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title US024 - As Administrator, I want to get a list all user accounts and their status
+
+autoactivate on
+autonumber
+
+actor "Administrator" as Administrator
+participant ":System" as System
+
+activate Administrator
+
+Administrator -> System: Get list of all user accounts and their status
+System -> System : GetAllUsersAndTheirStatus()
+deactivate
+System --> Administrator: Show the list of all user accounts with their status
+
+@enduml

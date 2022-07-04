@@ -1,0 +1,70 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+title US005 - As a Director, I want to create/register a new project
+
+autoactivate on
+autonumber
+
+
+participant ":CreateProjectRoute " as route
+participant ":ProjectController " as controller
+participant ":CreateProjectService " as service
+participant ":ProjectFactory " as factory
+participant ":ProjectMapper " as mapper
+participant ":ProjectRepository " as store
+participant "newProject \n:Project " as project
+participant "projDto: \nOutputProjectDTO " as dto
+participant "exception: \nException" as exc
+participant "response: \nResponseEntity" as json
+
+
+
+[o->  route: POST /projects (json)
+route -> controller: createProject(inDto)
+
+note right route: Json object was deserialize to a CreateProjectDto object
+
+controller -> service: createAndSave\nProject(inDto)
+
+service -> factory: createProject(inDto)
+
+note over factory : All parameters (value objects) are instantiated in their own factories.
+
+factory -> project**: create(name, description, ...)
+
+factory --> service: newProject
+
+service -> store: savedProject = save(newProject)
+ref over store: [[US005-SD-JPA.puml]]
+deactivate
+
+
+note over store : Saving project in Repository returns a new project created by jpa assembler
+
+deactivate store
+
+alt if the new project was correctly saved
+
+service -> mapper: model2Dto(savedProject)
+
+mapper -> dto**: create()
+
+mapper --> service: projDTO
+
+else if the new project was not saved
+
+service --> exc** : create(errorMessage)
+
+end
+
+service --> controller: projDto
+
+controller --> json**: create(projDto)
+
+controller --> route: response
+
+[<-- route: response
+
+@enduml
+

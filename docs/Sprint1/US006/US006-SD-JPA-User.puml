@@ -1,0 +1,25 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autoactivate on
+autonumber
+
+title US006 - As Administrator, I want to update profiles assigned to a user account
+
+
+participant ": IUserRepo" as Repository
+participant "foundUserJpa : UserJpaRepository" as jpaRepo
+participant ": UserJpaAssembler" as assembler
+participant " user: User" as user
+
+
+[o->Repository: findByUserId(userID)
+
+Repository -> jpaRepo : findById(userID)
+jpaRepo--> Repository: foundUserJpa
+Repository->assembler: toDomain(foundUserJpa)
+assembler -> user**: create
+assembler --> Repository : user
+[<--Repository: user
+
+@enduml

@@ -1,0 +1,46 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title US011 - As Authenticated User, i want to change his/her password
+
+autoactivate on
+autonumber
+
+
+participant ":UserRoute" as UI
+participant ":UserController" as Ctrl
+participant ":UserService" as service
+participant ":IUserRepository" as repo
+participant ":User" as user
+participant ":UserMapper" as mapper
+participant " outputUserDTO: \n OutputUserDTO" as outdto
+
+
+
+[o-> UI: PATCH/users/{ID}(json)
+UI -> Ctrl: UpdatePersonalData(json)
+note right
+Change from json to dto hidden to simplify diagram
+end note
+Ctrl -> service : updatePersonalData(updateDataDTO)
+note over service : The creation of the id are hidden to simplify the diagram.
+
+service -> repo: findByUserID (userID)
+ref over repo: [[US11SD_JPA.puml]]
+repo --> service : user
+service->user: updatePassword(oldPassword,newPassword)
+note over user : The changes of attributes are hidden to simplify the diagram .
+user-->service : true
+
+service->mapper : toDto(user)
+mapper -> outdto **: create()
+mapper-->service : outPutUserDTO
+service-->Ctrl : outPutUserDTO
+Ctrl -->UI : outPutUserJson
+note right
+Change from json to dto hidden to simplify diagram
+end note
+[<--UI : Informs that operation success
+
+
+@enduml

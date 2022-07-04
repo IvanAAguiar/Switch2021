@@ -1,0 +1,29 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+skinparam classAttributeIconSize 0
+hide circle
+
+title Domain Model excerpt - US031 - As Team Member, \n I want to create a task in a user story
+
+
+
+class Resource{
+-startDate
+-endDate
+}
+class  Task{
+-name
+-description
+-effortEstimate
+-taskType
+}
+
+
+
+
+Task "*" --> "*" Task: has precedences
+Task "*" <-- "1" Resource: is responsible
+
+
+@enduml

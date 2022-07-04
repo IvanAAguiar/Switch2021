@@ -1,0 +1,28 @@
+@startuml
+
+title US007 - As Director, I want to associate a human resource (user) to a project
+
+autoactivate on
+autonumber
+
+participant ": IResourceRepo" as Repository
+participant ": ResourceJpaAssembler" as Assembler
+participant "resourceJPA : ResourceJpa" as resourceJPA
+participant ":IResourceRepositoryJpa" as Driver
+participant "savedData : DBData" as Data
+participant "resource:Resource" as resource
+
+[o->Repository: save(newResource)
+Repository -> Assembler : toData(newResource)
+Assembler -> resourceJPA **: create ()
+Assembler --> Repository : ResourceJPA
+Repository -> Driver: save(resourceJpa)
+Driver -> Data**: create(savedResourceJpa)
+Driver --> Repository : savedData
+Repository -> Assembler: toDomain (savedData)
+Assembler -> resource **: create()
+Assembler --> Repository :resource
+
+[<--Repository: resource
+
+@enduml

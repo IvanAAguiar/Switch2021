@@ -1,0 +1,21 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+title US013 - As Administrator, I want to create user profiles
+
+autoactivate on
+autonumber
+
+actor "Administrator" as Administrator
+participant ":System" as System
+
+activate Administrator
+
+Administrator -> System: Request creation of a user profile
+System --> Administrator: Show form (name)
+
+Administrator -> System: Send request data in form
+Administrator <-- System: Informs operation success
+
+
+@enduml

@@ -1,0 +1,34 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autoactivate on
+autonumber
+
+title US008 -  As a Project Manager I want to edit some project information
+
+
+participant ": IProjectRepo" as Repository
+participant ":ProjectJpaRepository" as Driver
+participant "opProjJpa : DBData" as Data
+participant ": ProjectJpaAssembler" as Assembler
+participant "proj : Project" as Project
+
+[o->Repository: findById(projID)
+
+Repository -> Driver : findById(projID)
+
+Driver -> Data : findById(id)
+deactivate Driver
+
+Data --> Repository: opProjJpa
+
+
+Repository -> Assembler : toDomain(opProjJpa)
+
+Assembler -> Project **: create()
+
+Assembler --> Repository : proj
+
+[<--Repository: proj
+
+@enduml

@@ -1,0 +1,166 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+skinparam classAttributeIconSize 0
+
+title US008 - As a Project Manager i want to edit some project information
+
+
+
+'-------------------INFRASTRUCTURE-----------------------'
+package Infrastructure <<Rectangle>> #lightblue {
+
+package Routers {
+class "EditProjectRoute" as route <<Component>>
+}
+
+package "Persistence" {
+    interface "ProjectJpaRepository" as jpa <<Interface>>
+    }
+
+}
+
+'-------------------INTERFACE ADAPTERS-------------------'
+package InterfaceAdapters <<Rectangle>> #lightgreen{
+
+package Controllers {
+class ProjectController <<component>> {
++updateProjectPartially(editProjectInfoDTO)
+}
+}
+
+package Repositories {
+class ProjectRepository <<repository>> {
++findById(projID)
++save(proj)
+}
+}
+
+}
+
+'-------------------APPLICATION SERVICE------------------'
+package Application_Service <<Rectangle>> #lightpink {
+
+package IRepositories  {
+interface IProjectRepo <<interface>>{
++ findByProjectId(projID)
++ save(proj)
+}
+}
+
+package App_Service {
+class "ProjectService" as srv <<service>> {
++editProject()
+}
+}
+
+}
+
+'-------------------DOMAIN-------------------------------'
+package Domain <<Rectangle>> #burlywood{
+
+package Aggregates {
+class Project <<root>> {
+-projectName
+-description
+-customer
+-businessSector
+-typology
+-budget
+-sprintDuration
+-numberOfSprints
+-status
+-startDate
+-endDate
+}
+}
+
+package "Value Object" {
+class "ProjectId" as projId << Value Object >>{
+-code
+}
+}
+
+}
+
+'-------------------DTO----------------------------------'
+package DTO <<Rectangle>> #lightgrey{
+
+package "ProjectMapper" {
+class ProjectMapper <<component>> {
++model2Dto(project)
+}
+}
+package "OutputProjectDTO" {
+class OutputProjectDTO <<component>>{
+-projectName
+-description
+-customer
+-businessSector
+-typo
+-numberOfSprints
+-budget
+-status
+-startDate
+-endDate
+-sprintDuration
+}
+}
+package "EditProjectInfoDTO" {
+class EditProjectInfoDTO <<component>>{
+-code
+- projectName
+-description
+-customer
+-businessSector
+-typo
+-numberOfSprints
+-budget
+-status
+-startDate
+-endDate
+-sprintDuration
+}
+}
+}
+
+package "Data Model" <<Rectangle>>{
+        class "ProjectJpaAssembler" as assemblerjpa <<Component>> {
+        +toJpaData (proj)
+        +toDomain(savedProj)
+        }
+
+        class "projectJpa" as ProjJpa {
+        -projectName
+        -description
+        -customer
+        -businessSector
+        -typology
+        -budget
+        -sprintDuration
+        -numberOfSprints
+        -status
+        -startDate
+        -endDate
+        }
+}
+
+
+'-------------------RELATIONSHIPS------------------------'
+
+route ..> ProjectController
+ProjectController ..> srv
+srv .> IProjectRepo
+srv ..down> ProjectMapper
+srv ..> Project
+srv..down>EditProjectInfoDTO
+ProjectMapper .> OutputProjectDTO
+ProjectRepository ..> Project
+IProjectRepo <|.u. ProjectRepository
+Project -> projId
+ProjectRepository ..> jpa
+ProjectRepository ..> assemblerjpa
+ProjectRepository ..> ProjJpa
+'ProjectController..>OutputProjectDTO
+
+@enduml

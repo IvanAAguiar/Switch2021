@@ -1,0 +1,31 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autoactivate on
+autonumber
+
+title US010 - As Authenticated user, i want to update its own data (e.g. photo, function...)
+
+participant ": IUserRepo" as Repo
+participant ": UserJpaAssembler" as Assembler
+participant "userJpa : UserJpa" as UserJPA
+participant ": UserJpaRepository" as Driver
+participant "updatedUserJpa : DBData" as SavedJpa
+participant "updatedUser : User" as User
+
+[o->Repo: save(user)
+Repo -> Assembler : toData(user)
+Assembler --> UserJPA **: create()
+return userJpa
+Repo -> Driver: existById(userJpa.getEmail())
+return false
+Repo -> Driver: save(userJpa)
+Driver --> SavedJpa**: create()
+return updatedUserJpa
+Repo -> Assembler: toDomain (updatedUserJpa)
+Assembler --> User **: create()
+return updatedUser
+
+[<--Repo: updatedUser
+
+@enduml
